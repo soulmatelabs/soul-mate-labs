@@ -1,0 +1,41 @@
+---
+import { Image } from 'astro:assets';
+import Heading from './Heading.astro';
+import logo from '../assets/SoulMate-Labs-logo-medium.png';
+
+// Component: Hero (Module 01)
+// Physics: Full-Screen | Snap-Point
+---
+<section id="command-center" class="h-screen w-full snap-start flex flex-col justify-center items-center bg-midnight p-8 text-center relative overflow-hidden section-module" data-index="0">
+  <Heading as="h2" visualRank="vr2" class="mb-4 opacity-0 translate-y-4 flex items-center justify-center gap-3" id="hero-brand">
+    <Image 
+      src={logo} 
+      alt="SoulMate Labs Logo" 
+      width={40} 
+      height={40} 
+      loading="eager" 
+      fetchpriority="high"
+      class="w-8 h-8 md:w-10 md:h-10 -translate-y-[6px]"
+    />
+    SoulMate Labs
+  </Heading>
+
+  <Heading as="h1" visualRank="vr3" class="mb-6 opacity-0 translate-y-4" id="hero-seo">
+    Mindful Social Technology for Authentic Human Connection
+  </Heading>
+  
+  <Heading as="h3" visualRank="vr1" class="mb-12 opacity-0 translate-y-4" id="hero-hook">
+    Find what you're missing.
+  </Heading>
+  
+  <div class="flex flex-col md:flex-row gap-6 opacity-0 translate-y-4" id="hero-actions">
+    <a href="#friction-state" class="px-10 py-4 bg-lunar text-midnight font-bold rounded-full transition-transform hover:scale-105 font-sans btn-narrative">
+      Begin Journey
+    </a>
+    <a href="#hub" class="px-10 py-4 border border-lunar text-lunar font-bold rounded-full transition-all hover:bg-lunar/10 font-sans btn-direct">
+      Explore Apps
+    </a>
+  </div>
+  
+  <div class="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-lunar/5 to-transparent opacity-50 pointer-events-none"></div>
+</section>

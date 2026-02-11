@@ -1,0 +1,118 @@
+---
+import { Image } from 'astro:assets';
+import logo from '../assets/SoulMate-Labs-logo-medium.png';
+
+interface Props {
+  isHome?: boolean;
+}
+
+const { isHome = false } = Astro.props;
+---
+
+<nav class="fixed top-0 left-0 w-full z-[60] px-6 py-6 flex justify-between items-center pointer-events-none">
+  <!-- Left Side (Branding) -->
+  <div class="flex-1 pointer-events-auto">
+    <!-- Logo -->
+    <a href="/" class="p-1 hover:scale-105 transition-transform inline-block" aria-label="Go to Home">
+      <Image 
+        src={logo} 
+        alt="SoulMate Labs Logo" 
+        width={40} 
+        height={40} 
+        class="w-10 h-10"
+      />
+    </a>
+  </div>
+
+  <!-- Right Side (Actions) -->
+  <div class="flex items-center space-x-4 pointer-events-auto">
+    <!-- Hamburger Menu -->
+    <button 
+      id="menu-toggle" 
+      aria-label="Open Menu" 
+      class="p-3 bg-surface/80 backdrop-blur border border-white/10 rounded-full text-lunar shadow-lg active:scale-95 transition-all flex items-center justify-center"
+    >
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
+
+    <!-- Share Button (Re-positioned from Navigation.astro) -->
+    <button 
+      id="navbar-share" 
+      aria-label="Share this movement" 
+      class="p-3 bg-surface/80 backdrop-blur border border-white/10 rounded-full text-lunar shadow-lg active:scale-95 transition-all flex items-center justify-center"
+    >
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+        <polyline points="16 6 12 2 8 6"></polyline>
+        <line x1="12" y1="2" x2="12" y2="15"></line>
+      </svg>
+    </button>
+  </div>
+</nav>
+
+<!-- Fullscreen Menu Overlay -->
+<div id="menu-overlay" class="fixed inset-0 bg-midnight/95 backdrop-blur-xl z-[70] flex flex-col justify-center items-center opacity-0 pointer-events-none transition-all duration-500">
+  <button id="menu-close" aria-label="Close Menu" class="absolute top-8 right-8 p-4 text-lunar hover:text-white transition-colors">
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="18" y1="6" x2="6" y2="18"></line>
+      <line x1="6" y1="6" x2="18" y2="18"></line>
+    </svg>
+  </button>
+
+  <nav class="flex flex-col items-center space-y-8 text-2xl font-sans uppercase tracking-[0.2em]">
+    <a href="/about" class="text-white hover:text-lunar transition-colors nav-link">About Us</a>
+    <a href="/careers" class="text-white hover:text-lunar transition-colors nav-link">Careers</a>
+    <a href="/contact" class="text-white hover:text-lunar transition-colors nav-link">Contact</a>
+    <a href="/terms" class="text-white hover:text-lunar transition-colors nav-link">Terms of Service</a>
+    <a href="/privacy" class="text-white hover:text-lunar transition-colors nav-link">Privacy Policy</a>
+  </nav>
+
+  <div class="mt-20">
+    <p class="text-xs text-gray-600 tracking-widest uppercase">© 2026 SoulMate Labs</p>
+  </div>
+</div>
+
+<script>
+  const menuToggle = document.getElementById('menu-toggle');
+  const menuClose = document.getElementById('menu-close');
+  const menuOverlay = document.getElementById('menu-overlay');
+  const navLinks = document.querySelectorAll('.nav-link');
+
+  const openMenu = () => {
+    menuOverlay?.classList.remove('opacity-0', 'pointer-events-none');
+    menuOverlay?.classList.add('opacity-100', 'pointer-events-auto');
+    document.body.style.overflow = 'hidden';
+  };
+
+  const closeMenu = () => {
+    menuOverlay?.classList.remove('opacity-100', 'pointer-events-auto');
+    menuOverlay?.classList.add('opacity-0', 'pointer-events-none');
+    document.body.style.overflow = '';
+  };
+
+  menuToggle?.addEventListener('click', openMenu);
+  menuClose?.addEventListener('click', closeMenu);
+  navLinks.forEach(link => link.addEventListener('click', closeMenu));
+
+  // Share Logic
+  document.getElementById('navbar-share')?.addEventListener('click', async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'The Connection Movement | SoulMate Labs',
+          text: 'Discover mindful social technology for authentic human connection.',
+          url: window.location.origin,
+        });
+      } catch (err) {}
+    } else {
+      try {
+        await navigator.clipboard.writeText(window.location.origin);
+        alert('Link copied to clipboard');
+      } catch (err) {}
+    }
+  });
+</script>

@@ -1,0 +1,90 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-midnight text-white;
+}
+
+.shy-cta {
+  @apply mt-16 px-8 py-4 border-2 border-lunar/50 rounded-full text-lunar/60 text-sm tracking-widest uppercase transition-all duration-500 relative overflow-hidden;
+}
+
+.shy-cta:hover {
+  @apply border-lunar text-lunar shadow-[0_0_20px_rgba(147,197,253,0.4)];
+}
+
+.shy-cta::after {
+  content: '';
+  @apply absolute inset-0 bg-gradient-to-r from-transparent via-lunar/10 to-transparent -translate-x-full;
+  animation: shy-shine 5s infinite;
+}
+
+@keyframes shy-shine {
+  0% { transform: translateX(-100%); }
+  20% { transform: translateX(100%); }
+  100% { transform: translateX(100%); }
+}
+
+.hub-card-illuminate {
+  @apply border-lunar shadow-[0_0_30px_rgba(147,197,253,0.5)] scale-105;
+}
+
+@keyframes fade-in {
+  0% { opacity: 0; }
+  100% { opacity: 0.5; }
+}
+
+.animate-fade-in {
+  animation: fade-in 1.5s ease-out forwards;
+}
+
+@keyframes elliptical-grow {
+  0% { opacity: 0; clip-path: ellipse(0% 0% at 50% 50%); }
+  100% { opacity: 0.5; clip-path: ellipse(100% 100% at 50% 50%); }
+}
+
+@keyframes reveal-down {
+  0% { clip-path: inset(0 0 100% 0); opacity: 0; }
+  100% { clip-path: inset(0 0 0 0); opacity: 0.5; }
+}
+
+@keyframes reveal-right {
+  0% { clip-path: inset(0 100% 0 0); opacity: 0; }
+  100% { clip-path: inset(0 0 0 0); opacity: 0.5; }
+}
+
+@keyframes chaos-flicker {
+  0%, 100% { opacity: 0.1; transform: scale(1); filter: contrast(1.5); }
+  10% { opacity: 0.9; transform: scale(1.02); }
+  20% { opacity: 0.2; transform: scale(0.98); }
+  30% { opacity: 0.8; }
+  40% { opacity: 0.1; }
+  50% { opacity: 1; transform: scale(1.04); }
+  60% { opacity: 0.2; }
+  70% { opacity: 0.9; }
+  80% { opacity: 0.1; }
+  90% { opacity: 0.8; }
+}
+
+.animate-chaos-hectic {
+  animation: chaos-flicker 0.3s step-end infinite;
+}
+
+.animate-elliptical-grow {
+  animation: elliptical-grow 4s cubic-bezier(0.2, 0, 0.2, 1) forwards;
+}
+
+.animate-reveal-down {
+  animation: reveal-down 1.5s ease-out forwards;
+}
+
+.animate-reveal-right {
+  animation: reveal-right 1.5s ease-out forwards;
+}
+
+

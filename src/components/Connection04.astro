@@ -1,0 +1,35 @@
+---
+import Heading from './Heading.astro';
+import Text from './Text.astro';
+
+// Component: Connection04 (Module 07)
+// Physics: Full-Screen | Snap-Point
+---
+<section id="connection-04" class="h-screen w-full snap-start flex flex-col justify-center items-center bg-midnight text-center p-8 relative overflow-hidden section-module" data-index="6" data-auto-scroll="true">
+  {/* Visual: Bridge of Light */}
+  <div id="connection-04-visual" class="absolute inset-0 flex justify-center items-center z-0 opacity-0 pointer-events-none">
+    <img 
+      src="/assets/indigo-bridge.svg" 
+      alt="A bridge of light representing authentic partnership and vulnerability." 
+      class="w-full h-full object-cover" 
+    />
+  </div>
+
+  <div class="relative z-10">
+    <Heading as="h2" visualRank="vr1" class="mb-6 opacity-0 translate-y-4 staccato-text">
+      Connection 4.0: Authentic partnership.
+    </Heading>
+    
+    <Text visualRank="vr2" class="max-w-md mx-auto opacity-0 translate-y-4 staccato-text">
+      The safe space where two become one.
+    </Text>
+
+    <button 
+      class="shy-cta opacity-0 translate-y-4 staccato-text mx-auto" 
+      data-app="couplair"
+      aria-label="Bridge Distance with Couplair"
+    >
+      Bridge Distance
+    </button>
+  </div>
+</section>

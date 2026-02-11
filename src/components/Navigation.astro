@@ -1,0 +1,107 @@
+---
+// Component: Navigation (Nav FAB)
+// Desktop: Right side dots
+// Mobile: Bottom right FABs (Up/Down)
+---
+<!-- Desktop Navigation -->
+<div class="hidden md:flex fixed right-8 top-1/2 -translate-y-1/2 z-50 flex-col items-center space-y-4">
+  <button aria-label="Scroll Up" class="p-2 text-lunar/50 hover:text-lunar transition-colors" id="desktop-up">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+  </button>
+  
+  <nav class="flex flex-col space-y-3">
+    {['command-center', 'friction-state', 'catalyst', 'connection-01', 'connection-02', 'connection-03', 'connection-04', 'axioms', 'hub', 'footer'].map((id, i) => (
+      <a 
+        href={`#${id}`} 
+        aria-label={`Go to section ${i+1}`}
+        class="w-2 h-2 rounded-full bg-white/20 hover:bg-lunar hover:scale-125 transition-all nav-dot"
+        data-target={id}
+      ></a>
+    ))}
+  </nav>
+  
+  <button aria-label="Scroll Down" class="p-2 text-lunar/50 hover:text-lunar transition-colors" id="desktop-down">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+  </button>
+</div>
+
+<!-- Mobile Navigation (Two FABs) -->
+<div class="md:hidden fixed right-4 bottom-4 z-50 flex flex-col space-y-2">
+  <button aria-label="Scroll Up" class="p-3 bg-surface/80 backdrop-blur border border-white/10 rounded-full text-lunar hover:bg-lunar hover:text-midnight transition-colors shadow-lg" id="mobile-up">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+  </button>
+  <button aria-label="Scroll Down" class="p-3 bg-surface/80 backdrop-blur border border-white/10 rounded-full text-lunar hover:bg-lunar hover:text-midnight transition-colors shadow-lg" id="mobile-down">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+  </button>
+</div>
+
+<!-- Audio Toggle (Item 18) -->
+<div class="fixed bottom-6 left-6 z-50">
+  <button id="audio-toggle" aria-label="Toggle Sound" class="p-3 bg-surface/80 backdrop-blur border border-white/10 rounded-full text-lunar shadow-lg active:scale-95 transition-all flex items-center justify-center">
+    <div id="audio-icon-on" class="hidden">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+    </div>
+    <div id="audio-icon-off">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+    </div>
+  </button>
+</div>
+
+<script>
+  // Audio Toggle Logic
+  const audioToggle = document.getElementById('audio-toggle');
+  const iconOn = document.getElementById('audio-icon-on');
+  const iconOff = document.getElementById('audio-icon-off');
+  
+  let isMuted = localStorage.getItem('isMuted') !== 'false'; // Default to muted
+
+  const updateUI = () => {
+    if (isMuted) {
+      iconOn?.classList.add('hidden');
+      iconOff?.classList.remove('hidden');
+    } else {
+      iconOn?.classList.remove('hidden');
+      iconOff?.classList.add('hidden');
+    }
+    // Dispatch custom event for other components to listen to
+    window.dispatchEvent(new CustomEvent('audioStateChanged', { detail: { isMuted } }));
+  };
+
+  // Initialize UI
+  updateUI();
+
+  // Listen for external state changes (e.g. from Hero buttons)
+  window.addEventListener('audioStateChanged', (e: any) => {
+    isMuted = e.detail.isMuted;
+    updateUI();
+  });
+
+  audioToggle?.addEventListener('click', () => {
+    isMuted = !isMuted;
+    localStorage.setItem('isMuted', isMuted.toString());
+    updateUI();
+  });
+
+  // Mobile Share Logic
+  document.getElementById('mobile-share')?.addEventListener('click', async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'The Connection Movement | SoulMate Labs',
+          text: 'Discover mindful social technology for authentic human connection.',
+          url: window.location.href,
+        });
+      } catch (err) {
+        // Fail silently if user cancels
+      }
+    } else {
+      // Fallback for browsers that don't support Web Share API
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        alert('Link copied to clipboard');
+      } catch (err) {
+        console.error('Copy failed:', err);
+      }
+    }
+  });
+</script>

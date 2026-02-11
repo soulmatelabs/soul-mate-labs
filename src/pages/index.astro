@@ -1,0 +1,312 @@
+---
+import Hero from '../components/Hero.astro';
+import FrictionState from '../components/FrictionState.astro';
+import Catalyst from '../components/Catalyst.astro';
+import Connection01 from '../components/Connection01.astro';
+import Connection02 from '../components/Connection02.astro';
+import Connection03 from '../components/Connection03.astro';
+import Connection04 from '../components/Connection04.astro';
+import Axioms from '../components/Axioms.astro';
+import Hub from '../components/Hub.astro';
+import Footer from '../components/Footer.astro';
+import Navigation from '../components/Navigation.astro';
+import Navbar from '../components/Navbar.astro';
+import '../styles/global.css';
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>The Connection Movement | SoulMate Labs</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Sans:wght@400;500&display=swap" rel="stylesheet">
+	</head>
+	<body class="bg-midnight text-white overflow-hidden h-screen">
+    <Navbar />
+    
+    <main class="h-full overflow-y-scroll snap-y snap-mandatory scroll-smooth" id="scroll-container">
+      <Hero />
+      <FrictionState />
+      <Catalyst />
+      <Connection01 />
+      <Connection02 />
+      <Connection03 />
+      <Connection04 />
+      <Axioms />
+      <Hub />
+      <section id="footer" class="min-h-screen w-full snap-start flex flex-col justify-center items-center bg-midnight section-module" data-index="9">
+        <Footer />
+      </section>
+    </main>
+    
+    <Navigation />
+
+    <script>
+      // Flow State Controller
+      document.addEventListener('DOMContentLoaded', () => {
+        const container = document.getElementById('scroll-container');
+        const sections = document.querySelectorAll('.section-module');
+        const dots = document.querySelectorAll('.nav-dot');
+        const upBtns = [document.getElementById('desktop-up'), document.getElementById('mobile-up')];
+        const downBtns = [document.getElementById('desktop-down'), document.getElementById('mobile-down')];
+        let isDirectFlow = true; // Default to Direct Flow (No Auto-Scroll) until path is selected
+        let autoScrollTimer: ReturnType<typeof setTimeout> | null = null;
+        let isUserInteracting = false;
+        let interactionTimeout: ReturnType<typeof setTimeout> | null = null;
+        let activeIndex = 0;
+
+        // Observer for animations and active state
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              const section = entry.target as HTMLElement;
+              const index = parseInt(section.dataset.index || '0');
+              
+              // Clear any pending timer from previous section immediately upon entering a new one
+              if (autoScrollTimer) clearTimeout(autoScrollTimer);
+
+              // Manual Overwrite Check: If user scrolls UP, disable auto-scroll (Direct Flow)
+              if (index < activeIndex) {
+                 isDirectFlow = true;
+              }
+              activeIndex = index;
+
+              // Update Nav Dots
+              dots.forEach((dot) => {
+                const targetId = dot.getAttribute('data-target');
+                if (targetId === section.id) {
+                  dot.classList.remove('bg-white/20');
+                  dot.classList.add('bg-white', 'scale-125', 'shadow-[0_0_12px_rgba(147,197,253,0.8)]');
+                } else {
+                  dot.classList.add('bg-white/20');
+                  dot.classList.remove('bg-white', 'scale-125', 'shadow-[0_0_12px_rgba(147,197,253,0.8)]');
+                }
+              });
+
+              // Trigger Animations (Staccato)
+              const animationDuration = animateSection(section);
+
+              // Auto-Scroll Logic
+              if (!isDirectFlow && section.dataset.autoScroll === 'true') {
+                 autoScrollTimer = setTimeout(() => {
+                   // Only scroll if user hasn't touched the page recently
+                   if (!isUserInteracting) {
+                     scrollToNext(index);
+                   }
+                 }, animationDuration + 3000);
+              }
+            }
+          });
+        }, { threshold: 0.5 });
+
+        sections.forEach(section => observer.observe(section));
+
+        // Animation Helper - returns total animation duration in ms
+        function animateSection(section: HTMLElement): number {
+          let maxDelay = 0;
+          const heroElements = [
+            document.getElementById('hero-brand'),
+            document.getElementById('hero-seo'), 
+            document.getElementById('hero-hook'), 
+            document.getElementById('hero-actions')
+          ];
+
+          if (section.id === 'command-center') {
+             heroElements.forEach((el, i) => {
+                if(el) {
+                  const delay = i * 200;
+                  maxDelay = Math.max(maxDelay, delay);
+                  setTimeout(() => {
+                    el.classList.remove('opacity-0', 'translate-y-4');
+                    el.classList.add('animate-fade-in-up');
+                  }, delay);
+                }
+             });
+          } else {
+            // Visual Asset Animation
+            const visualAnimations: Record<string, { id: string, className: string, delay: number }> = {
+              'friction-state': { id: 'friction-chaos', className: 'animate-chaos-hectic', delay: 400 },
+              'connection-01': { id: 'connection-01-visual', className: 'animate-fade-in', delay: 400 },
+              'connection-02': { id: 'connection-02-visual', className: 'animate-elliptical-grow', delay: 400 },
+              'connection-03': { id: 'connection-03-visual', className: 'animate-reveal-down', delay: 400 },
+              'connection-04': { id: 'connection-04-visual', className: 'animate-reveal-right', delay: 400 },
+            };
+
+            const visual = visualAnimations[section.id];
+            if (visual) {
+              const el = document.getElementById(visual.id);
+              if (el) {
+                setTimeout(() => {
+                  el.classList.remove('opacity-0');
+                  el.classList.add(visual.className);
+                }, visual.delay);
+              }
+            }
+
+            const elements = section.querySelectorAll('.staccato-text');
+            elements.forEach((el, i) => {
+               const htmlEl = el as HTMLElement;
+               const customDelay = parseInt(htmlEl.dataset.delay || '0');
+               const delay = (i * 800) + customDelay;
+               maxDelay = Math.max(maxDelay, delay);
+               setTimeout(() => {
+                 htmlEl.classList.remove('opacity-0', 'translate-y-4');
+                 htmlEl.classList.add('animate-fade-in-up');
+               }, delay);
+            });
+          }
+          return maxDelay + 800;
+        }
+
+        function scrollToNext(currentIndex: number) {
+          if (currentIndex < sections.length - 1) {
+            sections[currentIndex + 1].scrollIntoView({ behavior: 'smooth' });
+          }
+        }
+        
+        function scrollToPrev(currentIndex: number) {
+           if (currentIndex > 0) {
+            sections[currentIndex - 1].scrollIntoView({ behavior: 'smooth' });
+          }
+        }
+
+        // Navigation Buttons
+        const handleNavClick = (direction: 'up' | 'down') => {
+          isUserInteracting = true;
+          if(autoScrollTimer) clearTimeout(autoScrollTimer);
+          
+          let currentIndex = 0;
+          let minDistance = Infinity;
+          
+          sections.forEach((s, i) => {
+            const rect = s.getBoundingClientRect();
+            const distance = Math.abs(rect.top);
+            if (distance < minDistance) {
+              minDistance = distance;
+              currentIndex = i;
+            }
+          });
+
+          if (direction === 'up') scrollToPrev(currentIndex);
+          else scrollToNext(currentIndex);
+
+          // Reset interaction after 5s of no activity from nav buttons
+          resetInteractionDelay();
+        };
+
+        upBtns.forEach(btn => btn?.addEventListener('click', () => handleNavClick('up')));
+        downBtns.forEach(btn => btn?.addEventListener('click', () => handleNavClick('down')));
+
+        // User Interaction Listener
+        const recordInteraction = () => {
+          isUserInteracting = true;
+          if (autoScrollTimer) clearTimeout(autoScrollTimer);
+          resetInteractionDelay();
+        };
+
+        const resetInteractionDelay = () => {
+          if (interactionTimeout) clearTimeout(interactionTimeout);
+          interactionTimeout = setTimeout(() => {
+            isUserInteracting = false;
+          }, 5000); // Resume auto-scroll logic after 5s of idleness
+        };
+
+        ['mousedown', 'wheel', 'touchstart', 'keydown'].forEach(evt => {
+          container?.addEventListener(evt, recordInteraction, { passive: true });
+        });
+
+        // Flow Logic (Direct vs Narrative)
+        const narrativeBtn = document.querySelector('.btn-narrative');
+        const directBtn = document.querySelector('.btn-direct');
+
+        const unlockAudio = () => {
+          // Create a silent buffer to unlock audio on mobile/desktop
+          const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+          if (AudioContext) {
+            const ctx = new AudioContext();
+            ctx.resume();
+          }
+          
+          // Proactively unmute on first "Begin" if not set
+          if (localStorage.getItem('isMuted') === null) {
+            localStorage.setItem('isMuted', 'false');
+            // Re-trigger UI update in Navigation
+            window.dispatchEvent(new CustomEvent('audioStateChanged', { detail: { isMuted: false } }));
+            // We need to refresh the local isMuted in the Nav component, 
+            // but the event listener there will handle it if we fix the listener.
+          }
+        };
+
+        narrativeBtn?.addEventListener('click', () => {
+          isDirectFlow = false;
+          isUserInteracting = false; // Reset to allow auto-scroll to start on FrictionState
+          if (interactionTimeout) clearTimeout(interactionTimeout);
+          unlockAudio();
+        });
+
+        directBtn?.addEventListener('click', () => {
+          isDirectFlow = true;
+          unlockAudio();
+        });
+
+        // Shy CTA Logic (Item 15 & 17)
+        const shyBtns = document.querySelectorAll('.shy-cta');
+        shyBtns.forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const app = (e.currentTarget as HTMLElement).dataset.app;
+            const targetUrl = (e.currentTarget as HTMLElement).getAttribute('data-url') || `/${app}`;
+            
+            // 1. Pause Auto-Scroll
+            isUserInteracting = true;
+            if (autoScrollTimer) clearTimeout(autoScrollTimer);
+            
+            // 2. Smooth Scroll to Hub
+            const hubSection = document.getElementById('hub');
+            if (hubSection) {
+              hubSection.scrollIntoView({ behavior: 'smooth' });
+              
+              // 3. Trigger illumination upon arrival and delayed window open
+              setTimeout(() => {
+                const card = document.getElementById(`hub-card-${app}`);
+                if (card) {
+                  // Illuminate card immediately upon arrival
+                  card.classList.add('hub-card-illuminate');
+                  
+                  // 4. Open external link after a 2-second delay
+                  setTimeout(() => {
+                    window.open(targetUrl, '_blank');
+                  }, 2000);
+                  
+                  // Remove illumination after a total of 5 seconds
+                  setTimeout(() => {
+                    card.classList.remove('hub-card-illuminate');
+                  }, 5000);
+                }
+              }, 1200); // Wait for scroll-to-Hub to complete
+            }
+          });
+        });
+      });
+    </script>
+
+    <style is:global>
+      /* Utility for hiding scrollbar but allowing scroll */
+      #scroll-container::-webkit-scrollbar {
+        display: none; 
+      }
+      #scroll-container {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      .animate-fade-in-up {
+        animation: fadeInUp 0.8s ease-out forwards;
+      }
+      @keyframes fadeInUp {
+        0% { opacity: 0; transform: translateY(20px); }
+        100% { opacity: 1; transform: translateY(0); }
+      }
+    </style>
+	</body>
+</html>

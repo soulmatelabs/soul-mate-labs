@@ -1,0 +1,29 @@
+# Node
+/node_modules
+
+# Astro
+/.astro
+/dist
+
+# Env
+.env
+.env.[a-zA-Z]*
+!.env.example
+
+# OS/Editor
+.DS_Store
+.vscode/
+.idea/
+
+# Dev Files
+/context
+session_summary.md
+commit_message.txt
+
+# Temporal files
+GEMINI.md
+signature_style.md
+feedback.md
+solved_feedback.md
+advanced_animations.md
+tmp_friction_state.md

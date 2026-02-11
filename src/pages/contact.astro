@@ -1,0 +1,15 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Heading from '../components/Heading.astro';
+import Text from '../components/Text.astro';
+---
+
+<BaseLayout title="Contact">
+  <Heading as="h1" visualRank="vr1" class="mb-8">Contact Us</Heading>
+  <Text visualRank="vr2" class="mb-6">
+    We'd love to hear from you.
+  </Text>
+  <Text visualRank="vr3">
+    Reach out to us at <a href="mailto:hello@soulmatelabs.com" class="text-lunar hover:underline">hello@soulmatelabs.com</a> for any inquiries, feedback, or just to say hello.
+  </Text>
+</BaseLayout>
