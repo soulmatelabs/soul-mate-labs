@@ -8,6 +8,7 @@ import Connection03 from '../components/Connection03.astro';
 import Connection04 from '../components/Connection04.astro';
 import Axioms from '../components/Axioms.astro';
 import Hub from '../components/Hub.astro';
+import AboutMini from '../components/AboutMini.astro';
 import Footer from '../components/Footer.astro';
 import Navigation from '../components/Navigation.astro';
 import Navbar from '../components/Navbar.astro';
@@ -36,7 +37,8 @@ import '../styles/global.css';
       <Connection04 />
       <Axioms />
       <Hub />
-      <section id="footer" class="min-h-screen w-full snap-start flex flex-col justify-center items-center bg-midnight section-module" data-index="9">
+      <AboutMini />
+      <section id="footer" class="min-h-screen w-full snap-start flex flex-col justify-center items-center bg-midnight section-module" data-index="10">
         <Footer />
       </section>
     </main>
@@ -127,7 +129,7 @@ import '../styles/global.css';
           } else {
             // Visual Asset Animation
             const visualAnimations: Record<string, { id: string, className: string, delay: number }> = {
-              'friction-state': { id: 'friction-chaos', className: 'animate-chaos-hectic', delay: 400 },
+              'friction-state': { id: 'friction-chaos', className: 'animate-chaos-shimmer', delay: 400 },
               'connection-01': { id: 'connection-01-visual', className: 'animate-fade-in', delay: 400 },
               'connection-02': { id: 'connection-02-visual', className: 'animate-elliptical-grow', delay: 400 },
               'connection-03': { id: 'connection-03-visual', className: 'animate-reveal-down', delay: 400 },

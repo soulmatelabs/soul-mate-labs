@@ -10,15 +10,15 @@ body {
   @apply bg-midnight text-white;
 }
 
-.shy-cta {
+.shy-cta, .btn-shy {
   @apply mt-16 px-8 py-4 border-2 border-lunar/50 rounded-full text-lunar/60 text-sm tracking-widest uppercase transition-all duration-500 relative overflow-hidden;
 }
 
-.shy-cta:hover {
+.shy-cta:hover, .btn-shy:hover {
   @apply border-lunar text-lunar shadow-[0_0_20px_rgba(147,197,253,0.4)];
 }
 
-.shy-cta::after {
+.shy-cta::after, .btn-shy::after {
   content: '';
   @apply absolute inset-0 bg-gradient-to-r from-transparent via-lunar/10 to-transparent -translate-x-full;
   animation: shy-shine 5s infinite;
@@ -58,21 +58,21 @@ body {
   100% { clip-path: inset(0 0 0 0); opacity: 0.5; }
 }
 
-@keyframes chaos-flicker {
-  0%, 100% { opacity: 0.1; transform: scale(1); filter: contrast(1.5); }
-  10% { opacity: 0.9; transform: scale(1.02); }
-  20% { opacity: 0.2; transform: scale(0.98); }
-  30% { opacity: 0.8; }
-  40% { opacity: 0.1; }
-  50% { opacity: 1; transform: scale(1.04); }
-  60% { opacity: 0.2; }
-  70% { opacity: 0.9; }
-  80% { opacity: 0.1; }
-  90% { opacity: 0.8; }
+@keyframes chaos-shimmer {
+  0%, 100% { opacity: 0.1; transform: scale(1); filter: blur(0px); }
+  50% { opacity: 0.25; transform: scale(1.05); filter: blur(2px); }
 }
 
-.animate-chaos-hectic {
-  animation: chaos-flicker 0.3s step-end infinite;
+.animate-chaos-shimmer {
+  animation: chaos-shimmer 8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-chaos-shimmer,
+  .animate-chaos-hectic {
+    animation: none !important;
+    opacity: 0.15 !important;
+  }
 }
 
 .animate-elliptical-grow {
