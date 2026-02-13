@@ -2,11 +2,6 @@
 import { Image } from 'astro:assets';
 import logo from '../assets/SoulMate-Labs-logo-medium.png';
 
-interface Props {
-  isHome?: boolean;
-}
-
-const { isHome = false } = Astro.props;
 ---
 
 <nav class="fixed top-0 left-0 w-full z-[60] px-6 py-6 flex justify-between items-center pointer-events-none">
@@ -64,6 +59,7 @@ const { isHome = false } = Astro.props;
   </button>
 
   <nav class="flex flex-col items-center space-y-8 text-2xl font-sans uppercase tracking-[0.2em]">
+    <a href="/" class="text-white hover:text-lunar transition-colors nav-link">Home</a>
     <a href="/about" class="text-white hover:text-lunar transition-colors nav-link">About Us</a>
     <a href="/careers" class="text-white hover:text-lunar transition-colors nav-link">Careers</a>
     <a href="/contact" class="text-white hover:text-lunar transition-colors nav-link">Contact</a>
@@ -72,7 +68,7 @@ const { isHome = false } = Astro.props;
   </nav>
 
   <div class="mt-20">
-    <p class="text-xs text-gray-600 tracking-widest uppercase">© 2026 SoulMate Labs</p>
+    <p class="text-xs text-gray-400 tracking-widest uppercase">© 2026 SoulMate Labs</p>
   </div>
 </div>
 

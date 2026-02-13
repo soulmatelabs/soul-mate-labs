@@ -10,6 +10,7 @@ import Axioms from '../components/Axioms.astro';
 import Hub from '../components/Hub.astro';
 import AboutMini from '../components/AboutMini.astro';
 import Footer from '../components/Footer.astro';
+import Synergize from '../components/Synergize.astro';
 import Navigation from '../components/Navigation.astro';
 import Navbar from '../components/Navbar.astro';
 import '../styles/global.css';
@@ -21,7 +22,7 @@ import '../styles/global.css';
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
-		<title>The Connection Movement | SoulMate Labs</title>
+		<title>SoulMate Labs | Engineering Meaningful Connections</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Sans:wght@400;500&display=swap" rel="stylesheet">
 	</head>
 	<body class="bg-midnight text-white overflow-hidden h-screen">
@@ -38,8 +39,12 @@ import '../styles/global.css';
       <Axioms />
       <Hub />
       <AboutMini />
-      <section id="footer" class="min-h-screen w-full snap-start flex flex-col justify-center items-center bg-midnight section-module" data-index="10">
-        <Footer />
+      <section id="footer" class="h-screen w-full snap-start flex flex-col justify-center items-center bg-midnight section-module" data-index="10">
+        <div class="max-w-6xl w-full flex flex-col items-center">
+          <Synergize />
+          <div class="w-full border-t border-white/5 my-10"></div>
+          <Footer class="py-0" />
+        </div>
       </section>
     </main>
     

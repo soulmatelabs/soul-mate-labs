@@ -2,14 +2,89 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Heading from '../components/Heading.astro';
 import Text from '../components/Text.astro';
+
+// SEO & Metadata from Architect's Blueprint
+const pageTitle = "About SoulMate Labs: Our Mission & Philosophy";
+const pageDescription = "Learn the story and philosophy behind SoulMate Labs. We believe in building social technology that fosters authentic, meaningful human connection.";
+
+// Copy from Copywriter's Messaging Map (v4 - Final)
+const manifesto = {
+    hook: "Social media should feel like home.",
+    body: "It often doesn't. Today’s platforms can feel like a performance, rewarding clicks over character and comparison over connection. We see that as a design failure, not a human one. It’s why so many of us feel like we have to be “interesting enough” to be seen. We know that hurts."
+};
+
+const motivation = {
+    hook: "We believe connection is the cure.",
+    body: "This isn't just a hunch; it's backed by research. Studies show that social interaction has a powerful, positive effect against addiction, mental illness, and many other problems our generation faces. That inspired us. The chance to help even one person feel less alone is what gets us up in the morning."
+};
+
+const originStory = {
+    hook: "This all started because we felt invisible.",
+    pullQuote: "Why isn't there a more efficient way to find the people who make your life brighter?",
+    body: "We grew up with those friends who just *got* us. The kind of friendships where things just clicked. Life happened, as it does. We moved, started new chapters, and landed in places where, even in rooms full of people, we felt profoundly disconnected. We felt invisible. \n\n Eventually, things just kind of happened. One of us found another, then a third. And we clicked. We became *that* group for each other—the kind of effortless, authentic connection we’d been missing. But we couldn't shake one question: we had so much in common, lived so close, yet it took *years* to find each other. Why do we accept that as normal? That question is the reason SoulMate Labs exists."
+};
+
+const resolve = {
+    hook: "Let's make algorithms work for us.",
+    body: "Technology is the perfect tool to enhance connection. By turning the tables and making algorithms serve us—not the other way around—we can find our place. A space to be ourselves, with people who just get it. A lasting relationship shouldn't be a painful grind; it should feel more like coming home."
+};
 ---
 
-<BaseLayout title="About Us">
-  <Heading as="h1" visualRank="vr1" class="mb-8">About Us</Heading>
-  <Text visualRank="vr2" class="mb-6">
-    SoulMate Labs is dedicated to creating mindful social technology that fosters authentic human connection in an increasingly digital world.
-  </Text>
-  <Text visualRank="vr3">
-    We believe that technology should serve humanity, not the other way around. Our mission is to build tools that help people find depth, clarity, and genuine resonance in their relationships.
-  </Text>
+<BaseLayout title={pageTitle} description={pageDescription}>
+  <!-- Main container enforcing the Wireframer's "Reading Mode" layout -->
+  <main class="mx-auto max-w-3xl px-6 py-24 sm:py-32 space-y-20">
+
+    <!-- Block 0: Page Title (SEO Intent) -->
+    <header>
+      <Heading as="h1" visualRank="vr3">
+        {pageTitle}
+      </Heading>
+    </header>
+
+    <!-- Block A: The Manifesto -->
+    <section class="space-y-4">
+      <Heading as="h2" visualRank="vr2">
+        {manifesto.hook}
+      </Heading>
+      <Text visualRank="vr3" class="text-gray-300">
+        {manifesto.body}
+      </Text>
+    </section>
+
+    <!-- Block B: The Motivation -->
+    <section class="space-y-4">
+      <Heading as="h2" visualRank="vr2">
+        {motivation.hook}
+      </Heading>
+      <Text visualRank="vr3" class="text-gray-300">
+        {motivation.body}
+      </Text>
+    </section>
+
+    <!-- Block C: The Origin Story -->
+    <section class="space-y-8">
+      <Heading as="h2" visualRank="vr2">
+        {originStory.hook}
+      </Heading>
+      <blockquote class="border-l-4 border-lunar pl-6 italic">
+          <Text visualRank="vr2" class="text-white">
+            {originStory.pullQuote}
+          </Text>
+      </blockquote>
+      <div class="prose prose-xl prose-invert text-gray-300">
+        {originStory.body.split('\n\n').map(p => <p>{p}</p>)}
+      </div>
+    </section>
+
+    <!-- Block D: The Resolve -->
+    <section class="space-y-4">
+      <Heading as="h2" visualRank="vr2">
+        {resolve.hook}
+      </Heading>
+      <Text visualRank="vr3" class="text-gray-300">
+        {resolve.body}
+      </Text>
+    </section>
+
+  </main>
 </BaseLayout>

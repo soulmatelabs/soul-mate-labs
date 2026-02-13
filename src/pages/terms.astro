@@ -2,12 +2,150 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Heading from '../components/Heading.astro';
 import Text from '../components/Text.astro';
+
+const sections = [
+  { id: 'acceptance', title: '1. Acceptance' },
+  { id: 'eligibility', title: '2. Eligibility' },
+  { id: 'environment', title: '3. Environment' },
+  { id: 'features', title: '4. App Features' },
+  { id: 'accounts', title: '5. User Accounts' },
+  { id: 'intellectual-property', title: '6. Intellectual Property' },
+  { id: 'conduct', title: '7. User Conduct' },
+  { id: 'disclaimers', title: '8. Disclaimers' },
+  { id: 'liability', title: '9. Liability' },
+  { id: 'termination', title: '10. Termination' },
+  { id: 'dispute', title: '11. Disputes' },
+  { id: 'miscellaneous', title: '12. Miscellaneous' },
+  { id: 'contact', title: '13. Contact' },
+];
 ---
 
-<BaseLayout title="Terms of Service">
-  <Heading as="h1" visualRank="vr1" class="mb-8">Terms of Service</Heading>
-  <Text visualRank="vr3" class="mb-4 text-gray-400">Last Updated: February 11, 2026</Text>
-  <Text visualRank="vr3">
-    By using our services, you agree to follow our terms. This is a placeholder for the full Terms of Service document.
-  </Text>
+<BaseLayout title="Terms of Service" description="SoulMate Labs Master Terms of Service. These Terms govern your access to and use of the SoulMate Labs ecosystem.">
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+    
+    <!-- Table of Contents (Sticky Sidebar) -->
+    <aside class="lg:col-span-3 hidden lg:block sticky top-40 h-fit">
+      <Heading as="h3" visualRank="vr3" class="mb-6 opacity-50">Contents</Heading>
+      <nav class="flex flex-col space-y-4">
+        {sections.map(section => (
+          <a href={`#${section.id}`} class="text-xs uppercase tracking-widest text-gray-500 hover:text-lunar transition-colors duration-200">
+            {section.title}
+          </a>
+        ))}
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="lg:col-span-9 space-y-16">
+      <header>
+        <Heading as="h1" visualRank="vr2" class="mb-4">Terms of Service</Heading>
+        <span class="text-xs uppercase tracking-[0.2em] text-lunar font-semibold">Last Updated: February 13, 2026</span>
+      </header>
+
+      <section class="prose prose-invert prose-lunar max-w-none">
+        <Text visualRank="vr3" class="mb-8 italic">
+          These Master Terms of Service constitute a legally binding agreement between you and SoulMate Labs. These Terms govern your access to and use of the SoulMate Labs ecosystem.
+        </Text>
+
+        <div id="acceptance" class="scroll-mt-40 space-y-6">
+          <Heading as="h2" visualRank="vr3" class="border-b border-white/10 pb-2">1. Acceptance of Terms</Heading>
+          <Text visualRank="vr3">
+            By downloading, installing, or using any App within the SoulMate Labs environment, you agree to be bound by these Terms. If you do not agree, you must immediately cease all use of the Services and delete all SoulMate Labs Apps.
+          </Text>
+        </div>
+
+        <div id="eligibility" class="scroll-mt-40 space-y-6 mt-12">
+          <Heading as="h2" visualRank="vr3" class="border-b border-white/10 pb-2">2. Eligibility and Age Requirement (Strict 18+)</Heading>
+          <Text visualRank="vr3">
+            The Services are intended solely for users who are eighteen (18) years of age or older. By using the Services, you warrant and represent that you are at least 18 years old and have the legal capacity to enter into a binding contract.
+          </Text>
+        </div>
+
+        <div id="environment" class="scroll-mt-40 space-y-6 mt-12">
+          <Heading as="h2" visualRank="vr3" class="border-b border-white/10 pb-2">3. SoulMate Labs App Environment & Distribution</Heading>
+          <Text visualRank="vr3">
+            <strong>3.2 Beta and Experimental Nature:</strong> You acknowledge that several Services (SoulSight, Up4it, SoulMate) may be in "Beta" or "Early Access" stages. These Services are experimental and use is at your own risk.
+          </Text>
+          <Text visualRank="vr3">
+            <strong>3.3 Sideloading and Third-Party Distribution:</strong> Sideloading bypasses standard store security protocols. You engage in sideloading at your own exclusive risk. SoulMate Labs is not liable for issues resulting from non-store versions.
+          </Text>
+        </div>
+
+        <div id="features" class="scroll-mt-40 space-y-6 mt-12">
+          <Heading as="h2" visualRank="vr3" class="border-b border-white/10 pb-2">4. Specific App Features and Data Usage</Heading>
+          <Text visualRank="vr3">
+            <strong>4.1 AI-Enhanced Services:</strong> You acknowledge you are interacting with Artificial Intelligence. AI-generated insights are probabilistic and do not constitute professional advice.
+          </Text>
+          <Text visualRank="vr3">
+            <strong>4.3 Social Interactions:</strong> SoulMate Labs does not conduct criminal background checks. You are solely responsible for your safety and assume all risks associated with meeting individuals discovered through the Apps.
+          </Text>
+        </div>
+
+        <div id="accounts" class="scroll-mt-40 space-y-6 mt-12">
+          <Heading as="h2" visualRank="vr3" class="border-b border-white/10 pb-2">5. User Accounts and Privacy</Heading>
+          <Text visualRank="vr3">
+            You are responsible for safeguarding any linked emails or recovery keys and for all activity occurring under your account.
+          </Text>
+        </div>
+
+        <div id="intellectual-property" class="scroll-mt-40 space-y-6 mt-12">
+          <Heading as="h2" visualRank="vr3" class="border-b border-white/10 pb-2">6. Intellectual Property Rights</Heading>
+          <Text visualRank="vr3">
+            All intellectual property rights in the Services are the exclusive property of SoulMate Labs. We grant you a personal, non-exclusive, revocable license for personal, non-commercial use.
+          </Text>
+        </div>
+
+        <div id="conduct" class="scroll-mt-40 space-y-6 mt-12">
+          <Heading as="h2" visualRank="vr3" class="border-b border-white/10 pb-2">7. User Conduct</Heading>
+          <Text visualRank="vr3">
+            You agree not to use the Services to harass, stalk, or harm any user, or to manipulate AI systems to generate prohibited or harmful content.
+          </Text>
+        </div>
+
+        <div id="disclaimers" class="scroll-mt-40 space-y-6 mt-12">
+          <Heading as="h2" visualRank="vr3" class="border-b border-white/10 pb-2">8. Disclaimers ("AS IS")</Heading>
+          <Text visualRank="vr3">
+            THE SERVICES ARE PROVIDED "AS IS." WE DISCLAIM ALL WARRANTIES. The Apps are not therapeutic or medical devices and are not a substitute for professional counseling.
+          </Text>
+        </div>
+
+        <div id="liability" class="scroll-mt-40 space-y-6 mt-12">
+          <Heading as="h2" visualRank="vr3" class="border-b border-white/10 pb-2">9. Limitation of Liability</Heading>
+          <Text visualRank="vr3">
+            TO THE MAXIMUM EXTENT PERMITTED BY LAW, SOULMATE LABS SHALL NOT BE LIABLE FOR: Real-World Outcomes, AI Output, or Data Loss.
+          </Text>
+        </div>
+
+        <div id="termination" class="scroll-mt-40 space-y-6 mt-12">
+          <Heading as="h2" visualRank="vr3" class="border-b border-white/10 pb-2">10. Termination</Heading>
+          <Text visualRank="vr3">
+            We reserve the right to terminate access to any or all Services at our discretion, without notice, for conduct we believe violates these Terms.
+          </Text>
+        </div>
+
+        <div id="dispute" class="scroll-mt-40 space-y-6 mt-12">
+          <Heading as="h2" visualRank="vr3" class="border-b border-white/10 pb-2">11. Dispute Resolution</Heading>
+          <Text visualRank="vr3">
+            Binding arbitration only for US/Canada users. These Terms are governed by the laws of Lima, Peru.
+          </Text>
+        </div>
+
+        <div id="miscellaneous" class="scroll-mt-40 space-y-6 mt-12">
+          <Heading as="h2" visualRank="vr3" class="border-b border-white/10 pb-2">12. Miscellaneous</Heading>
+          <Text visualRank="vr3">
+            If any part of these Terms is unenforceable, the remainder remains in effect. Apple and Google are not parties to this agreement.
+          </Text>
+        </div>
+
+        <div id="contact" class="scroll-mt-40 space-y-6 mt-12">
+          <Heading as="h2" visualRank="vr3" class="border-b border-white/10 pb-2">13. Contact Information</Heading>
+          <Text visualRank="vr3">
+            <strong>Entity:</strong> SoulMate Labs<br/>
+            <strong>Legal Email:</strong> soulmatelabs+legal@gmail.com<br/>
+            <strong>General Support:</strong> soulmatelabs@gmail.com
+          </Text>
+        </div>
+      </section>
+    </div>
+  </div>
 </BaseLayout>

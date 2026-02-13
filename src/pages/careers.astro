@@ -2,14 +2,55 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Heading from '../components/Heading.astro';
 import Text from '../components/Text.astro';
+
+// Component: Careers (The Forge)
+// Layout: 12-Column Grid | 8/4 Split
 ---
 
 <BaseLayout title="Careers">
-  <Heading as="h1" visualRank="vr1" class="mb-8">Careers</Heading>
-  <Text visualRank="vr2" class="mb-6">
-    Join us in redefining the future of human connection.
-  </Text>
-  <Text visualRank="vr3">
-    We are always looking for passionate individuals who care about the intersection of technology, psychology, and authentic living. Stay tuned for open positions.
-  </Text>
+  <div class="max-w-6xl mx-auto w-full">
+    <!-- SEO Intent -->
+    <Heading as="h1" visualRank="vr3" class="mb-4">Join SoulMate Labs</Heading>
+    
+    <!-- The Hook -->
+    <Heading as="h2" visualRank="vr1" class="mb-12 md:mb-20 max-w-4xl">
+      We don't hire. We partner.
+    </Heading>
+
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-24">
+      <!-- Block 1: The Reality (Col 1-8) -->
+      <div class="md:col-span-8 space-y-8">
+        <Text visualRank="vr4" class="max-w-2xl">
+          We're not a typical startup. This is a quest, bootstrapped by a solo founder, to reshape human connection. We offer a foundational stake—meaningful equity—for those with the integrity and drive to build alongside us from the ground floor.
+        </Text>
+
+        <Text visualRank="vr4" class="max-w-2xl">
+          We seek builders who resonate deeply with our mission: smart, ambitious, tenacious, with attention-to-detail and strategic-thinking, often overlooked by conventional paths. While experience in areas like tokenized identities, blockchain, or RAG is a plus, a fierce willingness to gain it and unwavering integrity are paramount. If this describes you, your vision aligns with ours.
+        </Text>
+
+        <!-- CTA -->
+        <div class="pt-8">
+          <a href="mailto:soulmatelabs@gmail.com" class="inline-block px-10 py-4 bg-lunar text-midnight font-bold rounded-full hover:scale-105 transition-all duration-300 uppercase tracking-widest text-sm">
+            Become a Partner
+          </a>
+        </div>
+      </div>
+
+      <!-- Block 2: The Specifics/Disclaimer (Col 9-12) -->
+      <div class="md:col-span-4 space-y-8 border-t md:border-t-0 md:border-l border-white/5 pt-12 md:pt-0 md:pl-12">
+        <div>
+          <Heading as="h4" visualRank="vr3" class="mb-4">The Reality</Heading>
+          <Text visualRank="vr4" class="text-gray-400">
+            High autonomy. High accountability. No safety nets—only the mission and the team beside you.
+          </Text>
+        </div>
+
+        <div class="pt-8">
+          <Text visualRank="vr5" class="text-gray-400 uppercase leading-relaxed">
+            No contractors. No employees. Just partners.
+          </Text>
+        </div>
+      </div>
+    </div>
+  </div>
 </BaseLayout>

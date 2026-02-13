@@ -1,7 +1,7 @@
 ---
 import type { HTMLTag } from 'astro/types';
 
-interface Props {
+export interface Props {
   as?: HTMLTag;
   visualRank?: 'vr2' | 'vr3' | 'vr4' | 'vr5';
   class?: string;
@@ -14,7 +14,7 @@ const rankStyles: Record<'vr2' | 'vr3' | 'vr4' | 'vr5', string> = {
   vr2: 'text-lg sm:text-xl md:text-2xl font-body text-gray-300 leading-relaxed',
   vr3: 'text-sm sm:text-base md:text-lg font-body text-gray-400 leading-relaxed',
   vr4: 'text-xs sm:text-sm font-body text-gray-400 leading-snug',
-  vr5: 'text-xs font-sans text-gray-600 uppercase tracking-widest',
+  vr5: 'text-xs font-sans text-gray-400 uppercase tracking-widest',
 };
 ---
 

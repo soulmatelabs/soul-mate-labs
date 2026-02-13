@@ -2,12 +2,155 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Heading from '../components/Heading.astro';
 import Text from '../components/Text.astro';
+
+const sections = [
+  { id: 'introduction', title: '1. Introduction' },
+  { id: 'collection', title: '2. Information Collection' },
+  { id: 'ai-processing', title: '3. AI Processing' },
+  { id: 'sensitive-data', title: '4. Sensitive Data' },
+  { id: 'third-party', title: '5. Third-Party Integrity' },
+  { id: 'retention', title: '6. Retention & Deletion' },
+  { id: 'storage', title: '7. Storage & Transfers' },
+  { id: 'law-enforcement', title: '8. Law Enforcement' },
+  { id: 'rights', title: '9. Your Rights' },
+  { id: 'security', title: '10. Security' },
+  { id: 'contact', title: '11. Contact Us' },
+];
 ---
 
-<BaseLayout title="Privacy Policy">
-  <Heading as="h1" visualRank="vr1" class="mb-8">Privacy Policy</Heading>
-  <Text visualRank="vr3" class="mb-4 text-gray-400">Last Updated: February 11, 2026</Text>
-  <Text visualRank="vr3">
-    Your privacy is important to us. This is a placeholder for the full Privacy Policy document explaining how we handle your data.
-  </Text>
+<BaseLayout title="Privacy Policy" description="SoulMate Labs Master Privacy Policy. We operate under a philosophy of Privacy by Design and Data Minimization.">
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+    
+    <!-- Table of Contents (Sticky Sidebar) -->
+    <aside class="lg:col-span-3 hidden lg:block sticky top-40 h-fit">
+      <Heading as="h3" visualRank="vr3" class="mb-6 opacity-50">Contents</Heading>
+      <nav class="flex flex-col space-y-4">
+        {sections.map(section => (
+          <a href={`#${section.id}`} class="text-xs uppercase tracking-widest text-gray-500 hover:text-lunar transition-colors duration-200">
+            {section.title}
+          </a>
+        ))}
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="lg:col-span-9 space-y-16">
+      <header>
+        <Heading as="h1" visualRank="vr2" class="mb-4">Privacy Policy</Heading>
+        <span class="text-xs uppercase tracking-[0.2em] text-lunar font-semibold">Last Updated: February 13, 2026</span>
+      </header>
+
+      <section class="prose prose-invert prose-lunar max-w-none">
+        <Text visualRank="vr3" class="mb-8 italic">
+          At SoulMate Labs, we operate under a philosophy of "Privacy by Design" and "Data Minimization." This policy explains how we collect, protect, and process data across our entire ecosystem.
+        </Text>
+
+        <div id="introduction" class="scroll-mt-40 space-y-6">
+          <Heading as="h2" visualRank="vr3" class="border-b border-white/10 pb-2">1. Introduction and Scope</Heading>
+          <Text visualRank="vr3">
+            This Privacy Policy applies to all users of SoulMate Labs Services. By using our Apps, you consent to the data practices described herein. We act as the Data Controller for the information collected through our Services.
+          </Text>
+        </div>
+
+        <div id="collection" class="scroll-mt-40 space-y-8 mt-12">
+          <Heading as="h2" visualRank="vr3" class="border-b border-white/10 pb-2">2. Information Collection by Service</Heading>
+          <Text visualRank="vr3">We collect only the minimum data required for each specific App's functionality.</Text>
+          
+          <div class="space-y-4">
+            <Heading as="h3" visualRank="vr3" class="text-lunar">A. SoulSight (Journaling):</Heading>
+            <ul class="list-disc pl-6 space-y-2 text-gray-400 font-body text-base">
+              <li><strong>Local Processing:</strong> SoulSight is designed to process journal entries locally on your device. We do not store the text of your journals on our servers.</li>
+              <li><strong>Technical Metadata:</strong> Anonymous metadata (crash logs, frequency of use) is collected for service quality.</li>
+              <li><strong>Exceptions:</strong> Opt-in cloud backups or manual exports to SoulMate are processed per Sections 3 and 4.</li>
+            </ul>
+          </div>
+
+          <div class="space-y-4">
+            <Heading as="h3" visualRank="vr3" class="text-lunar">B. Up4it & Couplair (Social & Communication):</Heading>
+            <ul class="list-disc pl-6 space-y-2 text-gray-400 font-body text-base">
+              <li><strong>Profile Data:</strong> Nicknames, availability status, and encrypted connection tokens.</li>
+              <li><strong>Interaction Data:</strong> Timestamps of status changes and interaction logs required for device syncing.</li>
+            </ul>
+          </div>
+
+          <div class="space-y-4">
+            <Heading as="h3" visualRank="vr3" class="text-lunar">C. SoulMate (AI Matchmaking):</Heading>
+            <ul class="list-disc pl-6 space-y-2 text-gray-400 font-body text-base">
+              <li><strong>Profiling Data:</strong> If you manually export data to SoulMate, we process it using AI models to generate behavioral and compatibility profiles.</li>
+              <li><strong>Consent:</strong> This processing is based on your explicit, opt-in consent solely for matchmaking.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div id="ai-processing" class="scroll-mt-40 space-y-6 mt-12">
+          <Heading as="h2" visualRank="vr3" class="border-b border-white/10 pb-2">3. AI Processing and Training</Heading>
+          <Text visualRank="vr3">
+            <strong>3.1 No Training on Personal Content:</strong> SoulMate Labs does not use your private journal entries or communications to train our machine learning models.
+          </Text>
+          <Text visualRank="vr3">
+            <strong>3.2 AI Execution Environment:</strong> We prioritize local-first processing using local LLMs. We reserve the right to route data to trusted third-party AI sub-processors via secure API for high-compute tasks, ensuring data remains anonymized and is not retained for training.
+          </Text>
+        </div>
+
+        <div id="sensitive-data" class="scroll-mt-40 space-y-6 mt-12">
+          <Heading as="h2" visualRank="vr3" class="border-b border-white/10 pb-2">4. Special Categories of Sensitive Data</Heading>
+          <Text visualRank="vr3">
+            Processing is strictly limited to providing the core AI features you have explicitly requested. We do not use this data for advertising or marketing. In SoulMate, data is used to create an anonymized "compatibility vector."
+          </Text>
+        </div>
+
+        <div id="third-party" class="scroll-mt-40 space-y-6 mt-12">
+          <Heading as="h2" visualRank="vr3" class="border-b border-white/10 pb-2">5. Sideloading and Third-Party Integrity</Heading>
+          <Text visualRank="vr3">
+            SoulMate Labs only guarantees the privacy protections of this policy for official, signed versions of our Apps. SoulMate Labs is not liable for privacy leaks resulting from the use of unofficial software or sideloaded APKs.
+          </Text>
+        </div>
+
+        <div id="retention" class="scroll-mt-40 space-y-6 mt-12">
+          <Heading as="h2" visualRank="vr3" class="border-b border-white/10 pb-2">6. Data Retention and Deletion</Heading>
+          <ul class="list-disc pl-6 space-y-2 text-gray-400 font-body text-base">
+            <li><strong>User-Initiated Deletion:</strong> Deleting your account triggers an immediate wipe from production databases.</li>
+            <li><strong>Inactivity Wipe:</strong> Accounts showing no authenticated interaction for 12 consecutive months are automatically purged.</li>
+            <li><strong>Local Data:</strong> Must be deleted manually by the user from their device.</li>
+          </ul>
+        </div>
+
+        <div id="storage" class="scroll-mt-40 space-y-6 mt-12">
+          <Heading as="h2" visualRank="vr3" class="border-b border-white/10 pb-2">7. Data Storage and International Transfers</Heading>
+          <Text visualRank="vr3">
+            We utilize trusted infrastructure providers (such as Supabase). Your data may be stored on servers in the United States, EU, or other jurisdictions.
+          </Text>
+        </div>
+
+        <div id="law-enforcement" class="scroll-mt-40 space-y-6 mt-12">
+          <Heading as="h2" visualRank="vr3" class="border-b border-white/10 pb-2">8. Disclosure to Law Enforcement</Heading>
+          <Text visualRank="vr3">
+            We only disclose data to law enforcement if compelled by a valid, binding court order from a jurisdiction with authority (Lima, Peru, or relevant international treaties).
+          </Text>
+        </div>
+
+        <div id="rights" class="scroll-mt-40 space-y-6 mt-12">
+          <Heading as="h2" visualRank="vr3" class="border-b border-white/10 pb-2">9. Your Privacy Rights</Heading>
+          <Text visualRank="vr3">
+            Regardless of your location, we provide the Right to Access/Export, Right to Erasure, and the Right to Withdraw Consent for AI profiling at any time.
+          </Text>
+        </div>
+
+        <div id="security" class="scroll-mt-40 space-y-6 mt-12">
+          <Heading as="h2" visualRank="vr3" class="border-b border-white/10 pb-2">10. Security Measures</Heading>
+          <Text visualRank="vr3">
+            We implement industry-standard encryption (AES-256 at rest and TLS in transit). You are responsible for the physical security of your device.
+          </Text>
+        </div>
+
+        <div id="contact" class="scroll-mt-40 space-y-6 mt-12">
+          <Heading as="h2" visualRank="vr3" class="border-b border-white/10 pb-2">11. Contact Us</Heading>
+          <Text visualRank="vr3">
+            <strong>Data Controller:</strong> SoulMate Labs<br/>
+            <strong>Privacy Email:</strong> soulmatelabs+legal@gmail.com
+          </Text>
+        </div>
+      </section>
+    </div>
+  </div>
 </BaseLayout>
