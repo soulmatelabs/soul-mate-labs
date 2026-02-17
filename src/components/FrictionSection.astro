@@ -1,0 +1,180 @@
+---
+import Heading from './Heading.astro';
+import Text from './Text.astro';
+
+// Component: FrictionSection (Phase 1)
+// Physics: Full-Screen | Snap-Point
+---
+<section id="friction-state" class="h-screen w-full snap-start flex justify-center items-center overflow-hidden relative section-module narrative-locked" data-index="1" data-auto-scroll="true">
+  <!-- Base Chaos Blur -->
+  <div id="friction-chaos" class="absolute inset-0 z-0 opacity-20 pointer-events-none select-none">
+     <img 
+      src="/assets/chaos-blur.svg" 
+      alt="" 
+      loading="lazy"
+      class="w-full h-full object-cover"
+    />
+  </div>
+
+  <!-- SVG Collage (Spotlight target) -->
+  <svg id="friction-collage" viewBox="0 0 1000 1000" class="absolute inset-0 w-full h-full z-10 opacity-60" preserveAspectRatio="xMidYMid slice">
+    <defs>
+      <radialGradient id="spotlight-gradient" cx="50%" cy="50%" r="15%" fx="50%" fy="50%">
+        <stop offset="0%" stop-color="white" stop-opacity="1" />
+        <stop offset="80%" stop-color="white" stop-opacity="0.2" />
+        <stop offset="100%" stop-color="white" stop-opacity="0" />
+      </radialGradient>
+      <mask id="spotlight-mask">
+        <rect width="1000" height="1000" fill="url(#spotlight-gradient)" />
+      </mask>
+    </defs>
+    
+    <g id="image-group" mask="url(#spotlight-mask)">
+      {Array.from({ length: 20 }).map((_, i) => (
+        <rect 
+          id={`img-${i + 1}`} 
+          x={Math.random() * 800} 
+          y={Math.random() * 800} 
+          width={150 + Math.random() * 100} 
+          height={150 + Math.random() * 100} 
+          fill={['#1e1b4b', '#312e81', '#1e293b', '#0f172a'][Math.floor(Math.random() * 4)]}
+          opacity="0.8"
+          stroke="#93C5FD"
+          stroke-width="1"
+        />
+      ))}
+    </g>
+  </svg>
+
+  <div class="relative z-20 text-center pointer-events-none px-8">
+    <Heading as="h2" visualRank="vr1" class="mb-6 staccato-text opacity-0 translate-y-4">
+      Connectivity ≠ Connection
+    </Heading>
+    <Text visualRank="vr2" class="staccato-text opacity-0 translate-y-4" data-delay="500">
+      Superficial interactions result in isolation. Start truly connecting.
+    </Text>
+  </div>
+</section>
+
+<script>
+  let frictionInitialized = false;
+
+  const init = async () => {
+    if (frictionInitialized) return;
+    
+    // Dynamic import GSAP only when the component initializes
+    const { default: gsap } = await import('gsap');
+    
+    const container = document.getElementById('scroll-container');
+    const section = document.querySelector('#friction-state');
+    const gradient = document.querySelector('#spotlight-gradient');
+    const images = document.querySelectorAll('#image-group > rect');
+    
+    const soundPaths = [
+      '/assets/audio/notification.mp3',
+      '/assets/audio/notification-2.mp3',
+      '/assets/audio/notification-3.mp3'
+    ];
+
+    let interval: ReturnType<typeof setInterval>;
+
+    const playRandomNotification = () => {
+      const isMuted = localStorage.getItem('isMuted') === 'true';
+      if (isMuted) return;
+
+      const sound = new Audio(soundPaths[Math.floor(Math.random() * soundPaths.length)]);
+      sound.volume = 0.1;
+      sound.play().catch(() => {});
+    };
+
+    const moveSpotlight = () => {
+      if (!gradient || images.length === 0) return;
+
+      const randomImg = images[Math.floor(Math.random() * images.length)] as SVGRectElement;
+      const x = parseFloat(randomImg.getAttribute('x') || '0');
+      const y = parseFloat(randomImg.getAttribute('y') || '0');
+      const w = parseFloat(randomImg.getAttribute('width') || '0');
+      const h = parseFloat(randomImg.getAttribute('height') || '0');
+      
+      const cx = x + w / 2;
+      const cy = y + h / 2;
+
+      const tl = gsap.timeline();
+      
+      tl.to(gradient, {
+        attr: { 
+          cx: `${cx / 10}%`, 
+          cy: `${cy / 10}%`, 
+          fx: `${cx / 10}%`, 
+          fy: `${cy / 10}%` 
+        },
+        duration: 1.2,
+        ease: 'power2.inOut'
+      });
+
+      tl.to(gradient, {
+        attr: { r: '25%' },
+        duration: 0.4,
+        yoyo: true,
+        repeat: 1,
+        ease: 'sine.inOut'
+      }, '-=0.4');
+
+      playRandomNotification();
+      if (window.navigator.vibrate) {
+        window.navigator.vibrate(50);
+      }
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          moveSpotlight();
+          interval = setInterval(moveSpotlight, 1500);
+        } else {
+          clearInterval(interval);
+        }
+      });
+    }, { 
+      root: container,
+      threshold: 0.5 
+    });
+
+    if (section) observer.observe(section);
+    frictionInitialized = true;
+
+    // Report ready to the main flow controller
+    const bgImg = section?.querySelector('#friction-chaos img') as HTMLImageElement;
+    if (bgImg && bgImg.complete) {
+      dispatchReady();
+    } else if (bgImg) {
+      bgImg.addEventListener('load', dispatchReady);
+    } else {
+      dispatchReady();
+    }
+  };
+
+  function dispatchReady() {
+    console.log("[Friction] Visuals and logic stable. Signaling ready.");
+    window.dispatchEvent(new CustomEvent('friction-ready'));
+  }
+
+  // Pre-fetch assets on intent
+  window.addEventListener('warm-friction', () => {
+    // Pre-cache audio by creating instances early
+    const soundPaths = [
+      '/assets/audio/notification.mp3',
+      '/assets/audio/notification-2.mp3',
+      '/assets/audio/notification-3.mp3'
+    ];
+    soundPaths.forEach(path => {
+      const a = new Audio();
+      a.src = path;
+      a.load();
+    });
+    console.log("[Friction] Assets warming...");
+  });
+
+  // Fully initialize when ready
+  window.addEventListener('init-friction', init);
+</script>

@@ -87,4 +87,7 @@ body {
   animation: reveal-right 1.5s ease-out forwards;
 }
 
-
+/* Gated Asset Pipeline: Hide narrative sections until intent is confirmed */
+.narrative-locked {
+  display: none !important;
+}

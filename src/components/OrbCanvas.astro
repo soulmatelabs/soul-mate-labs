@@ -1,0 +1,24 @@
+<canvas id="orb-canvas"></canvas>
+
+<script>
+  // Listen for the 'init-pixi' event from the main flow controller
+  window.addEventListener('init-pixi', async () => {
+      // Dynamic import to keep PixiJS out of the initial payload
+      const { initOrbAnimations } = await import('../lib/orb-animations');
+      initOrbAnimations('orb-canvas');
+  });
+</script>
+
+<style>
+  #orb-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 5; 
+    opacity: 0;
+    transition: opacity 0.8s ease-in-out;
+  }
+</style>

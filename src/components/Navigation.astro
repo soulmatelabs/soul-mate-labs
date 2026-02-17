@@ -63,8 +63,6 @@
       iconOn?.classList.remove('hidden');
       iconOff?.classList.add('hidden');
     }
-    // Dispatch custom event for other components to listen to
-    window.dispatchEvent(new CustomEvent('audioStateChanged', { detail: { isMuted } }));
   };
 
   // Initialize UI
@@ -72,14 +70,18 @@
 
   // Listen for external state changes (e.g. from Hero buttons)
   window.addEventListener('audioStateChanged', (e: any) => {
-    isMuted = e.detail.isMuted;
-    updateUI();
+    if (isMuted !== e.detail.isMuted) {
+      isMuted = e.detail.isMuted;
+      updateUI();
+    }
   });
 
   audioToggle?.addEventListener('click', () => {
     isMuted = !isMuted;
     localStorage.setItem('isMuted', isMuted.toString());
     updateUI();
+    // Dispatch custom event for other components to listen to
+    window.dispatchEvent(new CustomEvent('audioStateChanged', { detail: { isMuted } }));
   });
 
   // Mobile Share Logic

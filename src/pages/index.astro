@@ -1,6 +1,6 @@
 ---
 import Hero from '../components/Hero.astro';
-import FrictionState from '../components/FrictionState.astro';
+import FrictionSection from '../components/FrictionSection.astro';
 import Catalyst from '../components/Catalyst.astro';
 import Connection01 from '../components/Connection01.astro';
 import Connection02 from '../components/Connection02.astro';
@@ -13,6 +13,7 @@ import Footer from '../components/Footer.astro';
 import Synergize from '../components/Synergize.astro';
 import Navigation from '../components/Navigation.astro';
 import Navbar from '../components/Navbar.astro';
+import OrbCanvas from '../components/OrbCanvas.astro';
 import '../styles/global.css';
 ---
 
@@ -30,7 +31,7 @@ import '../styles/global.css';
     
     <main class="h-full overflow-y-scroll snap-y snap-mandatory scroll-smooth" id="scroll-container">
       <Hero />
-      <FrictionState />
+      <FrictionSection />
       <Catalyst />
       <Connection01 />
       <Connection02 />
@@ -49,11 +50,14 @@ import '../styles/global.css';
     </main>
     
     <Navigation />
+    <OrbCanvas />
 
     <script>
       // Flow State Controller
-      document.addEventListener('DOMContentLoaded', () => {
+      const initFlow = () => {
         const container = document.getElementById('scroll-container');
+        if (!container) return;
+
         const sections = document.querySelectorAll('.section-module');
         const dots = document.querySelectorAll('.nav-dot');
         const upBtns = [document.getElementById('desktop-up'), document.getElementById('mobile-up')];
@@ -63,14 +67,20 @@ import '../styles/global.css';
         let isUserInteracting = false;
         let interactionTimeout: ReturnType<typeof setTimeout> | null = null;
         let activeIndex = 0;
+        let isNarrativeUnlocked = false;
 
         // Observer for animations and active state
         const observer = new IntersectionObserver((entries) => {
           entries.forEach(entry => {
+            const section = entry.target as HTMLElement;
             if (entry.isIntersecting) {
-              const section = entry.target as HTMLElement;
               const index = parseInt(section.dataset.index || '0');
               
+              // Retroactive Pixi Loading: If entering Axioms (7) or Connections, ensuring Pixi is ready
+              if (index <= 7 && index >= 1 && !isNarrativeUnlocked) {
+                 unlockNarrative();
+              }
+
               // Clear any pending timer from previous section immediately upon entering a new one
               if (autoScrollTimer) clearTimeout(autoScrollTimer);
 
@@ -106,9 +116,34 @@ import '../styles/global.css';
               }
             }
           });
-        }, { threshold: 0.5 });
+        }, { 
+          root: container,
+          threshold: 0.5 
+        });
 
         sections.forEach(section => observer.observe(section));
+
+        // Unlock Narrative Pipeline
+        function unlockNarrative(withPixi = true) {
+          if (isNarrativeUnlocked) return;
+          
+          console.log("[Flow] Unlocking Narrative Sections...");
+          const locked = document.querySelectorAll('.narrative-locked');
+          locked.forEach(el => el.classList.remove('narrative-locked'));
+          
+          // Step 1: Initialize Friction visuals/logic
+          window.dispatchEvent(new CustomEvent('init-friction'));
+          
+          // Step 2: Pixi initialization is now gated by 'friction-ready'
+          if (withPixi) {
+            window.addEventListener('friction-ready', () => {
+              console.log("[Flow] Friction stable. Initializing Pixi engine...");
+              window.dispatchEvent(new CustomEvent('init-pixi'));
+            }, { once: true });
+          }
+          
+          isNarrativeUnlocked = true;
+        }
 
         // Animation Helper - returns total animation duration in ms
         function animateSection(section: HTMLElement): number {
@@ -122,7 +157,7 @@ import '../styles/global.css';
 
           if (section.id === 'command-center') {
              heroElements.forEach((el, i) => {
-                if(el) {
+                if(el && !el.classList.contains('animate-fade-in-up')) {
                   const delay = i * 200;
                   maxDelay = Math.max(maxDelay, delay);
                   setTimeout(() => {
@@ -134,7 +169,7 @@ import '../styles/global.css';
           } else {
             // Visual Asset Animation
             const visualAnimations: Record<string, { id: string, className: string, delay: number }> = {
-              'friction-state': { id: 'friction-chaos', className: 'animate-chaos-shimmer', delay: 400 },
+              'friction-state': { id: 'friction-collage', className: 'animate-chaos-shimmer', delay: 400 },
               'connection-01': { id: 'connection-01-visual', className: 'animate-fade-in', delay: 400 },
               'connection-02': { id: 'connection-02-visual', className: 'animate-elliptical-grow', delay: 400 },
               'connection-03': { id: 'connection-03-visual', className: 'animate-reveal-down', delay: 400 },
@@ -144,7 +179,7 @@ import '../styles/global.css';
             const visual = visualAnimations[section.id];
             if (visual) {
               const el = document.getElementById(visual.id);
-              if (el) {
+              if (el && !el.classList.contains(visual.className)) {
                 setTimeout(() => {
                   el.classList.remove('opacity-0');
                   el.classList.add(visual.className);
@@ -155,6 +190,8 @@ import '../styles/global.css';
             const elements = section.querySelectorAll('.staccato-text');
             elements.forEach((el, i) => {
                const htmlEl = el as HTMLElement;
+               if (htmlEl.classList.contains('animate-fade-in-up')) return;
+               
                const customDelay = parseInt(htmlEl.dataset.delay || '0');
                const delay = (i * 800) + customDelay;
                maxDelay = Math.max(maxDelay, delay);
@@ -188,6 +225,9 @@ import '../styles/global.css';
           let minDistance = Infinity;
           
           sections.forEach((s, i) => {
+            // Check if section is visible in layout (skip display: none)
+            if ((s as HTMLElement).offsetParent === null) return;
+
             const rect = s.getBoundingClientRect();
             const distance = Math.abs(rect.top);
             if (distance < minDistance) {
@@ -195,6 +235,20 @@ import '../styles/global.css';
               currentIndex = i;
             }
           });
+
+          // Retroactive unlock if trying to go into narrative zone
+          if (!isNarrativeUnlocked) {
+             if ((direction === 'down' && currentIndex === 0) || 
+                 (direction === 'up' && currentIndex === 8)) {
+                unlockNarrative(true);
+                // Give layout a moment to reflow before calculating target
+                setTimeout(() => {
+                  if (direction === 'up') scrollToPrev(currentIndex);
+                  else scrollToNext(currentIndex);
+                }, 10);
+                return;
+             }
+          }
 
           if (direction === 'up') scrollToPrev(currentIndex);
           else scrollToNext(currentIndex);
@@ -205,6 +259,15 @@ import '../styles/global.css';
 
         upBtns.forEach(btn => btn?.addEventListener('click', () => handleNavClick('up')));
         downBtns.forEach(btn => btn?.addEventListener('click', () => handleNavClick('down')));
+
+        // Nav Dot Unlocking
+        dots.forEach(dot => {
+          dot.addEventListener('click', () => {
+            if (!isNarrativeUnlocked) {
+              unlockNarrative(true);
+            }
+          });
+        });
 
         // User Interaction Listener
         const recordInteraction = () => {
@@ -241,21 +304,41 @@ import '../styles/global.css';
             localStorage.setItem('isMuted', 'false');
             // Re-trigger UI update in Navigation
             window.dispatchEvent(new CustomEvent('audioStateChanged', { detail: { isMuted: false } }));
-            // We need to refresh the local isMuted in the Nav component, 
-            // but the event listener there will handle it if we fix the listener.
           }
         };
 
-        narrativeBtn?.addEventListener('click', () => {
+        // Path 1: Begin Journey
+        narrativeBtn?.addEventListener('click', (e) => {
+          e.preventDefault();
+          unlockNarrative(true);
           isDirectFlow = false;
           isUserInteracting = false; // Reset to allow auto-scroll to start on FrictionState
           if (interactionTimeout) clearTimeout(interactionTimeout);
           unlockAudio();
+          
+          // Manual scroll after unlock to ensure layout is ready
+          setTimeout(() => {
+            const target = document.getElementById('friction-state');
+            target?.scrollIntoView({ behavior: 'smooth' });
+          }, 10);
         });
 
-        directBtn?.addEventListener('click', () => {
+        // Prewarming Path 1 (Friction Assets)
+        ['mouseenter', 'touchstart'].forEach(evt => {
+          narrativeBtn?.addEventListener(evt, () => {
+             window.dispatchEvent(new CustomEvent('warm-friction'));
+          }, { once: true });
+        });
+
+        // Path 2: Explore Apps
+        directBtn?.addEventListener('click', (e) => {
+          e.preventDefault();
+          // DO NOT unlock narrative here to keep Explore Apps path clean
           isDirectFlow = true;
           unlockAudio();
+          
+          const target = document.getElementById('hub');
+          target?.scrollIntoView({ behavior: 'smooth' });
         });
 
         // Shy CTA Logic (Item 15 & 17)
@@ -295,7 +378,13 @@ import '../styles/global.css';
             }
           });
         });
-      });
+      };
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initFlow);
+      } else {
+        initFlow();
+      }
     </script>
 
     <style is:global>
@@ -306,7 +395,17 @@ import '../styles/global.css';
       #scroll-container {
         -ms-overflow-style: none;
         scrollbar-width: none;
+        
+        /* Ensure stacking context for animations */
+        position: relative;
+        z-index: 10;
       }
+      
+      /* Transparency for Background Animations */
+      .section-module:not(#command-center):not(#hub):not(#about-mini):not(#footer) {
+        background-color: transparent !important;
+      }
+
       .animate-fade-in-up {
         animation: fadeInUp 0.8s ease-out forwards;
       }
