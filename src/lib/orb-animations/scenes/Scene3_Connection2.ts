@@ -23,6 +23,7 @@ export class Scene3_Connection2 implements SceneController {
         
         const centerX = app.screen.width / 2;
         const centerY = app.screen.height / 2;
+        const targetY = centerY - 100;
 
         this.cluster.clear();
         
@@ -31,7 +32,7 @@ export class Scene3_Connection2 implements SceneController {
         if (globalOrbState.position) {
             mainOrb.setPosition(globalOrbState.position.x, globalOrbState.position.y);
         } else {
-            mainOrb.setPosition(centerX, centerY);
+            mainOrb.setPosition(centerX, targetY);
         }
         this.cluster.addOrb(mainOrb);
 
@@ -39,8 +40,8 @@ export class Scene3_Connection2 implements SceneController {
         const orb2 = new Orb(15, 0xA855F7, 2); // Purple
         const orb3 = new Orb(15, 0xEC4899, 2); // Pink
         
-        orb2.setPosition(centerX - 100, centerY + 200); // Start off
-        orb3.setPosition(centerX + 100, centerY + 200);
+        orb2.setPosition(centerX - centerX, targetY); // Start off: centerX - 100, target Y + 200
+        orb3.setPosition(centerX + centerX, targetY); // centerX + 100, targetY + 200
 
         this.cluster.addOrb(orb2);
         this.cluster.addOrb(orb3);
@@ -48,14 +49,19 @@ export class Scene3_Connection2 implements SceneController {
         // Arrange in Row
         const tl = gsap.timeline();
         
-        tl.to(mainOrb.container, { x: centerX, y: centerY, duration: 1 });
-        tl.to(orb2.container, { x: centerX - 100, y: centerY, duration: 1 }, "<");
-        tl.to(orb3.container, { x: centerX + 100, y: centerY, duration: 1 }, "<");
+        tl.to(mainOrb.container, { x: centerX, y: targetY, duration: 1 });
+        tl.to(orb2.container, { x: centerX - 100, y: targetY, duration: 1 }, "<");
+        tl.to(orb3.container, { x: centerX + 100, y: targetY, duration: 1 }, "<");
 
         // Shine Sequence
         tl.call(() => mainOrb.shine(0.5, 10), [], "+=0.2");
         tl.call(() => orb2.shine(0.5, 10), [], "+=0.2");
         tl.call(() => orb3.shine(0.5, 10), [], "+=0.2");
+
+        // Add a shorter "conversation" sequence inspired by Scene 4
+        tl.call(() => orb2.shine(0.4, 12), [], "+=0.4"); // Orb 2 shines back
+        tl.call(() => mainOrb.shine(0.6, 15), [], "+=0.3"); // Main orb responds
+        tl.call(() => orb3.shine(0.4, 12), [], "+=0.4"); // Orb 3 joins in
     }
 
     public update(delta: number) {}

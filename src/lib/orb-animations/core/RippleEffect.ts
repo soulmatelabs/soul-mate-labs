@@ -21,15 +21,15 @@ export class RippleEffect {
     this.rings.push(ring);
 
     gsap.to(ring.scale, {
-        x: 20, 
-        y: 20, 
-        duration: 2, 
+        x: 100, //20
+        y: 100, //20
+        duration: 4, 
         ease: 'power1.out'
     });
     
     gsap.to(ring, {
         alpha: 0,
-        duration: 2,
+        duration: 4,
         ease: 'power1.out',
         onComplete: () => {
             this.container.removeChild(ring);

@@ -17,7 +17,6 @@
   "dependencies": {
     "@astrojs/check": "^0.9.6",
     "@astrojs/tailwind": "^5.1.4",
-    "@rive-app/canvas": "^2.35.0",
     "astro": "^5.2.5",
     "gsap": "^3.14.2",
     "pixi-filters": "^6.1.5",

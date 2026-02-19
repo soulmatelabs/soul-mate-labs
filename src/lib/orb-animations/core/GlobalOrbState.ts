@@ -9,6 +9,7 @@ class GlobalOrbState {
   public radius = 0;
   public color = 0xFFFFFF;
   public glowIntensity = 0;
+  public lastSectionIndex: number = -1;
   
   // Reference to the active main orb instance in the current scene (optional)
   public mainOrb: Orb | null = null;
@@ -23,9 +24,13 @@ class GlobalOrbState {
   }
 
   public updateStateFromOrb(orb: Orb) {
-    this.position = { x: orb.graphics.x, y: orb.graphics.y };
-    // Assuming Orb class exposes these or we can infer them
-    // For now, just tracking position is the most critical part for continuity
+    this.position = { 
+      x: orb.container.x, 
+      y: orb.container.y 
+    };
+    this.radius = orb.radius;
+    this.color = orb.color;
+    this.glowIntensity = orb.glowIntensity;
   }
 }
 

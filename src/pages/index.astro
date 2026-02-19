@@ -107,12 +107,24 @@ import '../styles/global.css';
 
               // Auto-Scroll Logic
               if (!isDirectFlow && section.dataset.autoScroll === 'true') {
+                 const autoScrollWait = section.dataset.autoScrollMs ? 
+                   parseInt(section.dataset.autoScrollMs) : 
+                   (animationDuration + 5000);
+
+                 console.log(`[Flow] Setting auto-scroll timer for section ${index} (${section.id}). Wait: ${autoScrollWait}ms`);
+
                  autoScrollTimer = setTimeout(() => {
+                   console.log(`[Flow] Auto-scroll timer fired for section ${index}. isUserInteracting: ${isUserInteracting}`);
                    // Only scroll if user hasn't touched the page recently
                    if (!isUserInteracting) {
+                     console.log(`[Flow] Triggering scroll to next from ${index}`);
                      scrollToNext(index);
+                   } else {
+                     console.log(`[Flow] Auto-scroll skipped due to user interaction`);
                    }
-                 }, animationDuration + 3000);
+                 }, autoScrollWait);
+              } else {
+                 console.log(`[Flow] Auto-scroll not enabled for section ${index} (${section.id}). isDirectFlow: ${isDirectFlow}`);
               }
             }
           });
@@ -131,16 +143,17 @@ import '../styles/global.css';
           const locked = document.querySelectorAll('.narrative-locked');
           locked.forEach(el => el.classList.remove('narrative-locked'));
           
-          // Step 1: Initialize Friction visuals/logic
-          window.dispatchEvent(new CustomEvent('init-friction'));
-          
-          // Step 2: Pixi initialization is now gated by 'friction-ready'
+          // Step 1: Pixi initialization is now gated by 'friction-ready'
           if (withPixi) {
             window.addEventListener('friction-ready', () => {
               console.log("[Flow] Friction stable. Initializing Pixi engine...");
               window.dispatchEvent(new CustomEvent('init-pixi'));
             }, { once: true });
           }
+
+          // Step 2: Initialize Friction visuals/logic
+          (window as any).INIT_FRICTION_REQUESTED = true;
+          window.dispatchEvent(new CustomEvent('init-friction'));
           
           isNarrativeUnlocked = true;
         }
@@ -193,7 +206,9 @@ import '../styles/global.css';
                if (htmlEl.classList.contains('animate-fade-in-up')) return;
                
                const customDelay = parseInt(htmlEl.dataset.delay || '0');
-               const delay = (i * 800) + customDelay;
+               const isAbsolute = htmlEl.dataset.delayAbsolute === 'true';
+               const delay = isAbsolute ? customDelay : (i * 1000) + customDelay;
+               
                maxDelay = Math.max(maxDelay, delay);
                setTimeout(() => {
                  htmlEl.classList.remove('opacity-0', 'translate-y-4');
@@ -201,7 +216,7 @@ import '../styles/global.css';
                }, delay);
             });
           }
-          return maxDelay + 800;
+          return maxDelay + 1000;
         }
 
         function scrollToNext(currentIndex: number) {
@@ -312,7 +327,7 @@ import '../styles/global.css';
           e.preventDefault();
           unlockNarrative(true);
           isDirectFlow = false;
-          isUserInteracting = false; // Reset to allow auto-scroll to start on FrictionState
+          isUserInteracting = false; // Reset to allow auto-scroll to start on FrictionSection
           if (interactionTimeout) clearTimeout(interactionTimeout);
           unlockAudio();
           
@@ -402,7 +417,7 @@ import '../styles/global.css';
       }
       
       /* Transparency for Background Animations */
-      .section-module:not(#command-center):not(#hub):not(#about-mini):not(#footer) {
+      .section-module:not(#command-center):not(#axioms):not(#hub):not(#about-mini):not(#footer) {
         background-color: transparent !important;
       }
 

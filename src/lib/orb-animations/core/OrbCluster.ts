@@ -25,9 +25,7 @@ export class OrbCluster {
 
     public clear() {
         this.orbs.forEach(orb => {
-            orb.stopPulse();
-            orb.stopOrbit();
-            this.container.removeChild(orb.container);
+            orb.destroy();
         });
         this.orbs = [];
     }

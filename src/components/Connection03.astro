@@ -5,7 +5,13 @@ import Text from './Text.astro';
 // Component: Connection03 (Module 06)
 // Physics: Full-Screen | Snap-Point
 ---
-<section id="connection-03" class="h-screen w-full snap-start flex flex-col justify-center items-center text-center p-8 overflow-hidden section-module narrative-locked" data-index="5" data-auto-scroll="true">
+<section 
+  id="connection-03" 
+  class="h-screen w-full snap-start flex flex-col justify-center items-center text-center p-8 overflow-hidden section-module narrative-locked" 
+  data-index="5" 
+  data-auto-scroll="true"
+  data-auto-scroll-ms="12700"
+>
   {/* Visual: Intersecting Beams (Replaced by PIXI)
   <div id="connection-03-visual" class="absolute inset-0 flex justify-center items-center z-0 opacity-0 pointer-events-none">
     <img 
@@ -16,21 +22,34 @@ import Text from './Text.astro';
   </div>
   */}
 
-  <div class="relative z-10">
-    <Heading as="h2" visualRank="vr1" class="mb-6 opacity-0 translate-y-4 staccato-text">
-      Connection 3.0: Soul-level resonance.
-    </Heading>
-    
-    <Text visualRank="vr2" class="max-w-md mx-auto opacity-0 translate-y-4 staccato-text">
-      Find the souls that vibrate at your frequency.
-    </Text>
+  <div class="h-64 w-full"></div> {/* Spacer to maintain text position roughly */}
 
-    <button 
-      class="shy-cta opacity-0 translate-y-4 staccato-text mx-auto" 
-      data-app="soulmate"
-      aria-label="Seek Resonance with Soul Mate"
-    >
-      Seek Resonance
-    </button>
-  </div>
+  <Heading 
+    as="h2" 
+    visualRank="vr1" 
+    class="mb-6 opacity-0 translate-y-4 staccato-text"
+    data-delay="0"
+    data-delay-absolute="true"
+  >
+    Connection 3.0: Soul-level resonance.
+  </Heading>
+    
+  <Text 
+    visualRank="vr2" 
+    class="max-w-md mx-auto opacity-0 translate-y-4 staccato-text"
+    data-delay="8000"
+    data-delay-absolute="true"
+  >
+    Find the souls that vibrate at your frequency.
+  </Text>
+
+  <button 
+    class="shy-cta opacity-0 translate-y-4 staccato-text mx-auto" 
+    data-app="soulmate"
+    data-delay="11200"
+    data-delay-absolute="true"
+    aria-label="Seek Resonance with Soul Mate"
+  >
+    Seek Resonance
+  </button>
 </section>

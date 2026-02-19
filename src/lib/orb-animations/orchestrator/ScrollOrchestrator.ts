@@ -2,6 +2,7 @@ import { Application } from 'pixi.js';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import type { SceneController } from '../core/SceneController';
+import { globalOrbState } from '../core/GlobalOrbState';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -173,8 +174,20 @@ export class ScrollOrchestrator {
             this.currentScene.exit();
         }
 
+        // Update global state index before entering new scene
+        const sections = Object.keys(this.sceneModules);
+        const currentIndex = this.currentScene ? sections.indexOf(this.getSectionIdByScene(this.currentScene)) : -1;
+        globalOrbState.lastSectionIndex = currentIndex;
+
         this.currentScene = newScene;
         console.log(`[PIXI] Entering new scene instance`);
-        this.currentScene.enter(this.app);
+        this.currentScene.enter(this.app!);
+    }
+
+    private getSectionIdByScene(scene: SceneController): string {
+        for (const [id, instance] of this.sceneInstances.entries()) {
+            if (instance === scene) return id;
+        }
+        return '';
     }
 }

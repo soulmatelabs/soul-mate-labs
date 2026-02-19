@@ -2,12 +2,29 @@
 import Heading from './Heading.astro';
 import Text from './Text.astro';
 
-// Component: FrictionSection (Phase 1)
+// Import assets for optimization
+import notification1 from '../assets/friction/notification-1.webp';
+import notification2 from '../assets/friction/notification-2.webp';
+import likeSpam from '../assets/friction/like-spam.webp';
+
+// Component: FrictionSection (Phase 2 - Sequential Notifications + Chaos Spam)
 // Physics: Full-Screen | Snap-Point
 ---
-<section id="friction-state" class="h-screen w-full snap-start flex justify-center items-center overflow-hidden relative section-module narrative-locked" data-index="1" data-auto-scroll="true">
+<section 
+  id="friction-state" 
+  class="h-screen w-full snap-start flex flex-col justify-center items-center overflow-hidden relative section-module narrative-locked" 
+  data-index="1" 
+  data-auto-scroll="true"
+  data-auto-scroll-ms="9500"
+  data-like-spam-url={likeSpam.src}
+>
+  <!-- Background Chaos Layer (Like Spam) -->
+  <div id="chaos-spam-container" class="absolute inset-0 z-0 pointer-events-none overflow-hidden opacity-30">
+    {/* Will be populated via JS for dynamic randomization */}
+  </div>
+
   <!-- Base Chaos Blur -->
-  <div id="friction-chaos" class="absolute inset-0 z-0 opacity-20 pointer-events-none select-none">
+  <div id="friction-collage" class="absolute inset-0 z-0 opacity-20 pointer-events-none select-none">
      <img 
       src="/assets/chaos-blur.svg" 
       alt="" 
@@ -16,123 +33,207 @@ import Text from './Text.astro';
     />
   </div>
 
-  <!-- SVG Collage (Spotlight target) -->
-  <svg id="friction-collage" viewBox="0 0 1000 1000" class="absolute inset-0 w-full h-full z-10 opacity-60" preserveAspectRatio="xMidYMid slice">
-    <defs>
-      <radialGradient id="spotlight-gradient" cx="50%" cy="50%" r="15%" fx="50%" fy="50%">
-        <stop offset="0%" stop-color="white" stop-opacity="1" />
-        <stop offset="80%" stop-color="white" stop-opacity="0.2" />
-        <stop offset="100%" stop-color="white" stop-opacity="0" />
-      </radialGradient>
-      <mask id="spotlight-mask">
-        <rect width="1000" height="1000" fill="url(#spotlight-gradient)" />
-      </mask>
-    </defs>
-    
-    <g id="image-group" mask="url(#spotlight-mask)">
-      {Array.from({ length: 20 }).map((_, i) => (
-        <rect 
-          id={`img-${i + 1}`} 
-          x={Math.random() * 800} 
-          y={Math.random() * 800} 
-          width={150 + Math.random() * 100} 
-          height={150 + Math.random() * 100} 
-          fill={['#1e1b4b', '#312e81', '#1e293b', '#0f172a'][Math.floor(Math.random() * 4)]}
-          opacity="0.8"
-          stroke="#93C5FD"
-          stroke-width="1"
-        />
-      ))}
-    </g>
-  </svg>
+  <!-- Notification Stack Area (Aligned with Orb Height) -->
+  <div id="notification-stack" class="h-64 w-full relative z-10 flex justify-center items-center">
+     <div id="stack-container" class="relative w-full max-w-[400px] flex justify-center items-center">
+       {/* 
+         Sequential Stack of Notifications (Alternating between 1 and 2)
+       */}
+       {[1, 2, 1, 2, 1, 2, 1].map((num, i) => (
+         <div 
+           class="notification-item absolute opacity-0 scale-95 w-full px-4" 
+           style={`z-index: ${10 + i};`}
+         >
+           <img 
+            src={num === 1 ? notification1.src : notification2.src} 
+            alt="Simulated notification"
+            class="w-full h-auto drop-shadow-2xl"
+            loading="lazy"
+           />
+         </div>
+       ))}
+     </div>
+  </div>
 
   <div class="relative z-20 text-center pointer-events-none px-8">
-    <Heading as="h2" visualRank="vr1" class="mb-6 staccato-text opacity-0 translate-y-4">
+    <Heading 
+      as="h2" 
+      visualRank="vr1" 
+      class="mb-6 staccato-text opacity-0 translate-y-4"
+      data-delay="0"
+      data-delay-absolute="true"
+    >
       Connectivity ≠ Connection
     </Heading>
-    <Text visualRank="vr2" class="staccato-text opacity-0 translate-y-4" data-delay="500">
-      Superficial interactions result in isolation. Start truly connecting.
+    <Text 
+      visualRank="vr2" 
+      class="staccato-text opacity-0 translate-y-4" 
+      data-delay="6000"
+      data-delay-absolute="true"
+    >
+      Stop superficial interactions. Start connecting.
     </Text>
   </div>
 </section>
 
 <script>
-  let frictionInitialized = false;
+  import gsap from 'gsap';
 
-  const init = async () => {
-    if (frictionInitialized) return;
+  let frictionInitialized = false;
+  let activeAudio: HTMLAudioElement[] = [];
+  let mainTimeline: gsap.core.Timeline | null = null;
+  let spamInterval: ReturnType<typeof setInterval> | null = null;
+
+  const stopAllAudioAndAnimations = () => {
+    activeAudio.forEach(audio => {
+      audio.pause();
+      audio.currentTime = 0;
+    });
+    activeAudio = [];
     
-    // Dynamic import GSAP only when the component initializes
-    const { default: gsap } = await import('gsap');
+    if (mainTimeline) {
+      mainTimeline.kill();
+      mainTimeline = null;
+    }
+    
+    if (spamInterval) {
+      clearInterval(spamInterval);
+      spamInterval = null;
+    }
+  };
+
+  const init = () => {
+    if (frictionInitialized) return;
+    console.log("[Friction] Initializing script...");
     
     const container = document.getElementById('scroll-container');
-    const section = document.querySelector('#friction-state');
-    const gradient = document.querySelector('#spotlight-gradient');
-    const images = document.querySelectorAll('#image-group > rect');
+    const section = document.querySelector('#friction-state') as HTMLElement;
+    const items = document.querySelectorAll('.notification-item');
+    const spamContainer = document.getElementById('chaos-spam-container');
     
+    if (!section) return;
+    const likeSpamUrl = section.dataset.likeSpamUrl || '';
+
     const soundPaths = [
       '/assets/audio/notification.mp3',
       '/assets/audio/notification-2.mp3',
       '/assets/audio/notification-3.mp3'
     ];
 
-    let interval: ReturnType<typeof setInterval>;
-
-    const playRandomNotification = () => {
+    const playNotificationSound = (index: number) => {
       const isMuted = localStorage.getItem('isMuted') === 'true';
       if (isMuted) return;
 
-      const sound = new Audio(soundPaths[Math.floor(Math.random() * soundPaths.length)]);
-      sound.volume = 0.1;
-      sound.play().catch(() => {});
+      const audio = new Audio(soundPaths[index % soundPaths.length]);
+      audio.volume = 0.08;
+      activeAudio.push(audio);
+      
+      audio.play().catch(e => console.warn("[Friction] Audio play failed:", e));
+      
+      audio.onended = () => {
+        activeAudio = activeAudio.filter(a => a !== audio);
+      };
     };
 
-    const moveSpotlight = () => {
-      if (!gradient || images.length === 0) return;
-
-      const randomImg = images[Math.floor(Math.random() * images.length)] as SVGRectElement;
-      const x = parseFloat(randomImg.getAttribute('x') || '0');
-      const y = parseFloat(randomImg.getAttribute('y') || '0');
-      const w = parseFloat(randomImg.getAttribute('width') || '0');
-      const h = parseFloat(randomImg.getAttribute('height') || '0');
+    const spawnLikeSpam = () => {
+      if (!spamContainer) return;
+      const img = document.createElement('img');
+      img.src = likeSpamUrl;
+      img.className = 'absolute opacity-0 scale-50';
       
-      const cx = x + w / 2;
-      const cy = y + h / 2;
-
-      const tl = gsap.timeline();
+      const x = Math.random() * 100;
+      const y = Math.random() * 100;
+      const rotation = (Math.random() - 0.5) * 60;
       
-      tl.to(gradient, {
-        attr: { 
-          cx: `${cx / 10}%`, 
-          cy: `${cy / 10}%`, 
-          fx: `${cx / 10}%`, 
-          fy: `${cy / 10}%` 
-        },
-        duration: 1.2,
-        ease: 'power2.inOut'
+      img.style.left = `${x}%`;
+      img.style.top = `${y}%`;
+      img.style.transform = `rotate(${rotation}deg)`;
+      img.style.width = `${40 + Math.random() * 80}px`;
+      
+      spamContainer.appendChild(img);
+      
+      gsap.to(img, {
+        opacity: 0.5,
+        scale: 1,
+        duration: 0.25,
+        ease: 'back.out(2)',
+        onComplete: () => {
+          gsap.to(img, {
+            opacity: 0,
+            scale: 0.7,
+            duration: 0.8,
+            delay: 0.4,
+            onComplete: () => img.remove()
+          });
+        }
+      });
+      
+      playNotificationSound(Math.floor(Math.random() * 3));
+    };
+
+    const triggerSequence = () => {
+      console.log("[Friction] Triggering animation sequence...");
+      stopAllAudioAndAnimations();
+      mainTimeline = gsap.timeline();
+      const shiftAmount = 80;
+      
+      items.forEach((item, i) => {
+        const baseDelay = 1.0;
+        let cumulativeDelay = baseDelay;
+        for(let n = 0; n < i; n++) {
+           cumulativeDelay += Math.max(0.3, 1.0 - (n * 0.15));
+        }
+        
+        if (i > 0) {
+           for (let j = 0; j < i; j++) {
+              mainTimeline!.to(items[j], {
+                 y: `-=${shiftAmount}`,
+                 alpha: `-=0.12`,
+                 duration: 0.4,
+                 ease: 'power2.out'
+              }, cumulativeDelay);
+           }
+        }
+
+        mainTimeline!.fromTo(item, 
+          { opacity: 0, scale: 0.8, y: 20 },
+          {
+            opacity: 1,
+            scale: 1,
+            y: 0,
+            duration: 0.5,
+            ease: 'back.out(1.2)',
+            onStart: () => {
+               playNotificationSound(i);
+               if (window.navigator.vibrate) window.navigator.vibrate(50);
+               
+               if (i === 3 && !spamInterval) {
+                  spamInterval = setInterval(spawnLikeSpam, 400);
+               }
+               if (i === 6 && spamInterval) {
+                  clearInterval(spamInterval);
+                  spamInterval = setInterval(spawnLikeSpam, 150);
+               }
+            }
+          }, cumulativeDelay);
       });
 
-      tl.to(gradient, {
-        attr: { r: '25%' },
-        duration: 0.4,
-        yoyo: true,
-        repeat: 1,
-        ease: 'sine.inOut'
-      }, '-=0.4');
-
-      playRandomNotification();
-      if (window.navigator.vibrate) {
-        window.navigator.vibrate(50);
-      }
+      // Natural Fade-out: Stop the chaotic spam sounds just before the last text appears (at 6s)
+      mainTimeline.add(() => {
+        if (spamInterval) {
+          clearInterval(spamInterval);
+          spamInterval = null;
+        }
+      }, 5.5);
     };
 
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
-          moveSpotlight();
-          interval = setInterval(moveSpotlight, 1500);
+          console.log("[Friction] Section visible.");
+          triggerSequence();
         } else {
-          clearInterval(interval);
+          stopAllAudioAndAnimations();
         }
       });
     }, { 
@@ -142,39 +243,25 @@ import Text from './Text.astro';
 
     if (section) observer.observe(section);
     frictionInitialized = true;
-
-    // Report ready to the main flow controller
-    const bgImg = section?.querySelector('#friction-chaos img') as HTMLImageElement;
-    if (bgImg && bgImg.complete) {
-      dispatchReady();
-    } else if (bgImg) {
-      bgImg.addEventListener('load', dispatchReady);
-    } else {
-      dispatchReady();
-    }
+    console.log("[Friction] Initialized successfully.");
+    dispatchReady();
   };
 
   function dispatchReady() {
-    console.log("[Friction] Visuals and logic stable. Signaling ready.");
     window.dispatchEvent(new CustomEvent('friction-ready'));
   }
 
-  // Pre-fetch assets on intent
-  window.addEventListener('warm-friction', () => {
-    // Pre-cache audio by creating instances early
-    const soundPaths = [
-      '/assets/audio/notification.mp3',
-      '/assets/audio/notification-2.mp3',
-      '/assets/audio/notification-3.mp3'
-    ];
-    soundPaths.forEach(path => {
-      const a = new Audio();
-      a.src = path;
-      a.load();
-    });
-    console.log("[Friction] Assets warming...");
-  });
-
-  // Fully initialize when ready
   window.addEventListener('init-friction', init);
+  
+  // Support manual/fallback init
+  if ((window as any).INIT_FRICTION_REQUESTED) {
+     init();
+  }
 </script>
+
+<style>
+  .notification-item {
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.4));
+    will-change: transform, opacity;
+  }
+</style>

@@ -25,19 +25,45 @@ export class Orb {
     this.graphics = new Graphics();
     this.container.addChild(this.graphics);
 
-    // Initialize filters
-    this.glowFilter = new GlowFilter({ distance: 15, outerStrength: glowIntensity, color: color });
+    // Initialize filters with softer default spread
+    this.glowFilter = new GlowFilter({ 
+        distance: 20, 
+        outerStrength: glowIntensity, 
+        color: color,
+        alpha: 0.6 // Softer starting alpha
+    });
     this.blurFilter = new BlurFilter({ strength: 0.5 });
-    // this.container.filters = [this.glowFilter, this.blurFilter]; // Applying to container
 
     this.draw();
   }
 
   private draw() {
     this.graphics.clear();
+    
+    /* 
+    // Simple Flat Look
     this.graphics.circle(0, 0, this._radius);
     this.graphics.fill({ color: this._color });
-    this.container.filters = [this.glowFilter, this.blurFilter]; // Re-apply to ensure they are active
+    */
+
+    // Spherical Look
+    // Main Body
+    this.graphics.circle(0, 0, this._radius);
+    this.graphics.fill({ color: this._color });
+    
+    // Subtle white border for definition
+    this.graphics.stroke({ 
+        width: 1, 
+        color: 0xFFFFFF, 
+        alpha: 0.3,
+        alignment: 1 // Outer stroke
+    });
+
+    // Specular Highlight (Inner "Sheen")
+    this.graphics.circle(-this._radius * 0.3, -this._radius * 0.3, this._radius * 0.25);
+    this.graphics.fill({ color: 0xFFFFFF, alpha: 0.4 });
+
+    this.container.filters = [this.glowFilter, this.blurFilter];
   }
 
   public get radius() { return this._radius; }
@@ -46,7 +72,7 @@ export class Orb {
   public get color() { return this._color; }
   public set color(v: number) { 
       this._color = v; 
-      this.glowFilter.color = v; // Update glow color too
+      this.glowFilter.color = v;
       this.draw(); 
   }
 
@@ -56,19 +82,36 @@ export class Orb {
       this.glowFilter.outerStrength = v;
   }
 
+  // New property for light spread
+  public get glowDistance() { return this.glowFilter.distance; }
+  public set glowDistance(v: number) { this.glowFilter.distance = v; }
+
+  /* 
+  // Old Pulse Logic (Irregular Border Look)
+  public pulse() {
+    if (this._pulseTimeline) this._pulseTimeline.kill();
+    this._pulseTimeline = gsap.timeline({ repeat: -1, yoyo: true });
+    this._pulseTimeline.to(this.graphics.scale, { x: 1.1, y: 1.1, duration: 1 / this._pulseSpeed, ease: 'sine.inOut' });
+    this._pulseTimeline.to(this, { glowIntensity: this._glowIntensity * 1.5, duration: 1 / this._pulseSpeed, ease: 'sine.inOut' }, "<");
+  }
+  */
+
   public pulse() {
     if (this._pulseTimeline) this._pulseTimeline.kill();
     
     this._pulseTimeline = gsap.timeline({ repeat: -1, yoyo: true });
-    this._pulseTimeline.to(this.graphics.scale, {
-      x: 1.1,
-      y: 1.1,
-      duration: 1 / this._pulseSpeed,
-      ease: 'sine.inOut'
-    });
+    
+    // Focus on "radiating" light rather than scaling the orb itself
     this._pulseTimeline.to(this, {
-        glowIntensity: this._glowIntensity * 1.5,
-        duration: 1 / this._pulseSpeed,
+        glowDistance: 40,      // Increase spread (shadow spread)
+        glowIntensity: 3,     // Moderate strength
+        duration: 1.5 / this._pulseSpeed,
+        ease: 'sine.inOut'
+    });
+    
+    this._pulseTimeline.to(this.glowFilter, {
+        alpha: 0.4,           // Subtle opacity change
+        duration: 1.5 / this._pulseSpeed,
         ease: 'sine.inOut'
     }, "<");
   }
@@ -77,14 +120,35 @@ export class Orb {
     if (this._pulseTimeline) {
         this._pulseTimeline.kill();
         this._pulseTimeline = null;
-        gsap.to(this.graphics.scale, { x: 1, y: 1, duration: 0.5 });
-        gsap.to(this, { glowIntensity: this._glowIntensity, duration: 0.5 });
+        gsap.to(this, { 
+            glowDistance: 20, 
+            glowIntensity: this._glowIntensity, 
+            duration: 0.5 
+        });
+        gsap.to(this.glowFilter, { alpha: 0.6, duration: 0.5 });
     }
   }
 
+  /*
+  // Old Shine Logic
   public shine(duration: number = 0.5, intensity: number = 5) {
+      gsap.to(this, { glowIntensity: intensity, duration: duration / 2, yoyo: true, repeat: 1, ease: 'power2.out' });
+  }
+  */
+
+  public shine(duration: number = 0.5, intensity: number = 5) {
+      // Beaming harder leverages more spread and higher alpha
       gsap.to(this, {
-          glowIntensity: intensity,
+          glowDistance: 60,         // Broad spread for irradiated look
+          glowIntensity: intensity / 2, // Lower relative intensity to avoid "border" look
+          duration: duration / 2,
+          yoyo: true,
+          repeat: 1,
+          ease: 'power2.out'
+      });
+      
+      gsap.to(this.glowFilter, {
+          alpha: 0.9,               // Much more solid light during beam
           duration: duration / 2,
           yoyo: true,
           repeat: 1,
@@ -93,25 +157,15 @@ export class Orb {
   }
 
   public moveTo(x: number, y: number, duration: number = 1, ease: string = 'power2.inOut') {
-    return gsap.to(this.container, {
-      x,
-      y,
-      duration,
-      ease
-    });
+    return gsap.to(this.container, { x, y, duration, ease });
   }
 
   public orbitAround(target: {x: number, y: number}, radius: number, speed: number = 1) {
-    // Determine current angle relative to target
     const dx = this.container.x - target.x;
     const dy = this.container.y - target.y;
     let angle = Math.atan2(dy, dx);
-    
-    // We animate a proxy object 'angle' property
     const proxy = { angle: angle };
-    
     if (this._orbitTimeline) this._orbitTimeline.kill();
-    
     this._orbitTimeline = gsap.timeline({ repeat: -1, ease: 'none' });
     this._orbitTimeline.to(proxy, {
         angle: angle + Math.PI * 2,
@@ -132,10 +186,7 @@ export class Orb {
   }
 
   public fade(opacity: number, duration: number = 0.5) {
-    return gsap.to(this.container, {
-      alpha: opacity,
-      duration
-    });
+    return gsap.to(this.container, { alpha: opacity, duration });
   }
 
   public attractTo(target: {x: number, y: number}, duration: number = 1) {
@@ -145,5 +196,16 @@ export class Orb {
   public setPosition(x: number, y: number) {
       this.container.x = x;
       this.container.y = y;
+  }
+
+  public destroy() {
+    // Kill any ongoing animations to prevent them from targeting a destroyed object.
+    this.stopPulse();
+    this.stopOrbit();
+    gsap.killTweensOf(this);
+    gsap.killTweensOf(this.container);
+
+    // Destroy the PixiJS container and its children.
+    this.container.destroy({ children: true, texture: true });
   }
 }

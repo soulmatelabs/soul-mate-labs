@@ -27,6 +27,7 @@ export class Scene4_Connection3 implements SceneController {
         
         const centerX = app.screen.width / 2;
         const centerY = app.screen.height / 2;
+        const targetY = centerY - 100;
 
         this.cluster.clear();
 
@@ -36,9 +37,9 @@ export class Scene4_Connection3 implements SceneController {
         const orb3 = new Orb(15, 0xEC4899, 2);
         
         // Approx positions from previous scene (Row)
-        mainOrb.setPosition(centerX, centerY);
-        orb2.setPosition(centerX - 100, centerY);
-        orb3.setPosition(centerX + 100, centerY);
+        mainOrb.setPosition(centerX, targetY);
+        orb2.setPosition(centerX - 100, targetY);
+        orb3.setPosition(centerX + 100, targetY);
         
         this.cluster.addOrb(mainOrb);
         this.cluster.addOrb(orb2);
@@ -61,47 +62,51 @@ export class Scene4_Connection3 implements SceneController {
             new Orb(15, 0x818CF8, 2)
         ];
         
-        // Spawn them outside
-        newOrbs[0].setPosition(centerX - 300, centerY - 200);
-        newOrbs[1].setPosition(centerX, centerY + 300);
-        newOrbs[2].setPosition(centerX + 300, centerY - 200);
+        // Spawn them outside the viewport
+        newOrbs[0].setPosition(centerX - centerX, targetY - centerY); // centerX - 300, targetY - 200
+        newOrbs[1].setPosition(centerX, targetY + 1.5 * centerY); // targetY + 300
+        newOrbs[2].setPosition(centerX + centerX, targetY - centerY); // centerX + 300, targetY - 200
         
         newOrbs.forEach(orb => this.cluster.addOrb(orb));
 
-        tl.to({}, { duration: 1 }); // Wait for ripple
+        tl.to({}, { duration: 1.8 }); // Wait for ripple
 
         tl.call(() => {
-            newOrbs.forEach(orb => orb.attractTo({x: centerX, y: centerY}, 1.5));
+            // Organize all 5 surrounding orbs into an inverted pentagon for perfect symmetry
+            // Mapping targets to minimize crossing based on spawn/start positions:
+            // 0: Bottom, 1: Bottom-Left, 2: Top-Left, 3: Top-Right, 4: Bottom-Right
+            const surroundingOrbs = [
+                newOrbs[1], // 0: Bottom (Comes from Bottom)
+                orb2,       // 1: Bottom-Left (Comes from Left)
+                newOrbs[0], // 2: Top-Left (Comes from Top-Left)
+                newOrbs[2], // 3: Top-Right (Comes from Top-Right)
+                orb3        // 4: Bottom-Right (Comes from Right)
+            ];
+
+            surroundingOrbs.forEach((orb, i) => {
+                const angle = (Math.PI * 2 * i) / 5 + Math.PI / 2; // Start at Bottom
+                const tx = centerX + Math.cos(angle) * 100;
+                const ty = targetY + Math.sin(angle) * 100;
+                orb.attractTo({x: tx, y: ty}, 2.0);
+            });
         });
         
         // 4. Rearrange all 6 into Circle
-        tl.to({}, { duration: 1 });
+        tl.to({}, { duration: 1.5 }); // Increased slightly to let pentagon settle
         tl.call(() => {
-            this.cluster.arrangeInCircle(centerX, centerY, 150, 1.5);
+            this.cluster.arrangeInCircle(centerX, targetY, 50, 1.5);
         });
 
-        // 5. Two orbs pulse in sync
-        tl.call(() => {
-            mainOrb.pulse();
-            orb2.pulse();
-        }, [], "+=1.5");
-
-        // 6. Move center pair (Main + Orb2) to center
-        tl.call(() => {
-            mainOrb.stopOrbit();
-            orb2.stopOrbit();
-            mainOrb.moveTo(centerX - 30, centerY, 1);
-            orb2.moveTo(centerX + 30, centerY, 1);
-            
-            // Others surround
-            const others = this.cluster.orbs.filter(o => o !== mainOrb && o !== orb2);
-            others.forEach((o, i) => {
-                const angle = (Math.PI * 2 * i) / 4;
-                const tx = centerX + Math.cos(angle) * 220;
-                const ty = centerY + Math.sin(angle) * 220;
-                o.moveTo(tx, ty, 1);
-            });
-        }, [], "+=1");
+        // 5. Beaming Sequence ("Conversation")
+        tl.to({}, { duration: 1.5 }); // Wait for circle arrangement to settle
+        
+        tl.call(() => this.cluster.orbs[0].shine(0.7, 15), [], "+=0.1");
+        tl.call(() => this.cluster.orbs[2].shine(0.5, 12), [], "+=0.4");
+        tl.call(() => this.cluster.orbs[4].shine(0.5, 12), [], "+=0.3");
+        tl.call(() => this.cluster.orbs[1].shine(0.6, 15), [], "+=0.5");
+        tl.call(() => this.cluster.orbs[3].shine(0.5, 12), [], "+=0.2");
+        tl.call(() => this.cluster.orbs[5].shine(0.5, 12), [], "+=0.4");
+        tl.call(() => this.cluster.orbs[0].shine(0.8, 18), [], "+=0.6");
     }
 
     public update(delta: number) {}
