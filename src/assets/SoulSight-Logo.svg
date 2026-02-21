@@ -1,0 +1,26 @@
+<svg width="1000" height="1000" viewBox="22 10 56 75" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <desc>SoulSight Logo - Sky Reflection</desc>
+    <defs>
+        <!-- Gradient for the primary 'S' path -->
+        <linearGradient id="skyGradient" x1="50%" y1="0%" x2="50%" y2="100%">
+            <stop offset="0%" style="stop-color:#0ea5e9;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#2563eb;stop-opacity:1" />
+        </linearGradient>
+    </defs>
+
+    <!-- Mirrored S Path (Light Sky Blue Reflection) -->
+    <path 
+        d="M50 15 C65 15, 70 35, 50 45 C30 55, 35 75, 50 75" 
+        stroke="#bae6fd" 
+        stroke-width="5" 
+        stroke-linecap="round" 
+    />
+
+    <!-- Normal S Path (Primary Gradient Blue) -->
+    <path 
+        d="M50 15 C35 15, 30 35, 50 45 C70 55, 65 75, 50 75" 
+        stroke="url(#skyGradient)" 
+        stroke-width="5" 
+        stroke-linecap="round" 
+    />
+</svg>
