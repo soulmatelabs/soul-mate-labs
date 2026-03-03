@@ -13,12 +13,14 @@ export class Scene2_Connection1 implements SceneController {
     private app: Application | null = null;
     private handsSprite: Sprite | null = null;
     private animationTimeline: gsap.core.Timeline | null = null;
+    private isExited: boolean = false;
 
     constructor() {
         this.container = new Container();
     }
 
     public async enter(app: Application) {
+        this.isExited = false;
         this.app = app;
         this.container.visible = true;
         this.app.stage.addChild(this.container);
@@ -28,11 +30,13 @@ export class Scene2_Connection1 implements SceneController {
         const targetY = centerY - 100;
 
         // 1. Initialize Orb
-        if (globalOrbState.mainOrb) {
+        if (globalOrbState.mainOrb && !globalOrbState.mainOrb.destroyed) {
             // An orb was passed from the previous scene, let's reuse it.
             this.mainOrb = globalOrbState.mainOrb;
             // Clear the global reference to prevent accidental reuse.
             globalOrbState.mainOrb = null;
+            // Kill any previous tweens on this reused orb
+            gsap.killTweensOf(this.mainOrb);
         } else {
             // Fallback: create a new orb if none was passed.
             this.mainOrb = new Orb(
@@ -45,15 +49,19 @@ export class Scene2_Connection1 implements SceneController {
         // Reset properties to Scene 2's initial state
         this.mainOrb.color = 0x4B5563;
         this.mainOrb.glowIntensity = 0.3;
+        this.mainOrb.radius = 15; // Match transition target size
         this.mainOrb.setPosition(centerX, targetY);
         this.mainOrb.pulse();
+        
+        // Add the orb immediately to prevent flashing while assets load
+        this.container.addChild(this.mainOrb.container);
 
         // 2. Load Hands Sprite
         try {
             const texture = await Assets.load(handsOutline.src);
             
             // Safety: If scene exited while loading, stop here
-            if (!this.app) return;
+            if (this.isExited || !this.app) return;
 
             this.handsSprite = new Sprite(texture);
             this.handsSprite.anchor.set(0.5);
@@ -82,11 +90,8 @@ export class Scene2_Connection1 implements SceneController {
             ];
             this.handsSprite.filters = [filter];
             
-            // Add hands before the orb to render them underneath.
-            this.container.addChild(this.handsSprite);
-            if (this.mainOrb) {
-                this.container.addChild(this.mainOrb.container);
-            }
+            // Add hands underneath the orb.
+            this.container.addChildAt(this.handsSprite, 0);
 
             // 3. Define Animation State Proxy
             const animState = {
@@ -105,7 +110,7 @@ export class Scene2_Connection1 implements SceneController {
             this.animationTimeline = gsap.timeline({ 
                 delay: handsDelay,
                 onUpdate: () => {
-                    if (this.mainOrb && this.app) { 
+                    if (this.mainOrb && !this.mainOrb.destroyed && this.app && !this.isExited) { 
                         this.mainOrb.color = new Color(animState.color).toNumber();
                         this.mainOrb.glowIntensity = animState.glow;
                         
@@ -117,21 +122,6 @@ export class Scene2_Connection1 implements SceneController {
                 }
             });
 
-            /* 
-            // PREVIOUS VERSION: Upward movement
-            const startY = app.screen.height * 0.5;
-            this.handsSprite.y = startY;
-            animState.handY = startY;
-
-            this.animationTimeline.to(animState, {
-                handY: endY,
-                handAlpha: 0.70,
-                duration: handsDuration,
-                ease: "power2.out" 
-            });
-            */
-
-            // NEW VERSION: Stationary hands (placed at endY from start)
             // Phase 1: Alpha goes from 0 to 0.70 while orb is still gray
             this.animationTimeline.to(animState, {
                 handAlpha: 0.50,
@@ -147,13 +137,6 @@ export class Scene2_Connection1 implements SceneController {
                 duration: 2.5,
                 ease: "power1.inOut" 
             });
-
-            // Add the new "shine" communication beam effect
-            /*if (this.mainOrb) {
-                this.animationTimeline.call(() => {
-                    this.mainOrb?.shine(0.4, 10);
-                }, [], "+=0.1");
-            }*/
 
             // Post-arrival breathing glow
             this.animationTimeline.to(animState, {
@@ -173,14 +156,21 @@ export class Scene2_Connection1 implements SceneController {
     }
 
     public exit() {
+        this.isExited = true;
         if (this.animationTimeline) {
             this.animationTimeline.kill();
             this.animationTimeline = null;
         }
 
         if (this.mainOrb) {
-            globalOrbState.updateStateFromOrb(this.mainOrb);
-            globalOrbState.mainOrb = this.mainOrb;
+            gsap.killTweensOf(this.mainOrb);
+            if (!this.mainOrb.destroyed) {
+                globalOrbState.updateStateFromOrb(this.mainOrb);
+                globalOrbState.mainOrb = this.mainOrb;
+            } else {
+                this.mainOrb = null;
+                globalOrbState.mainOrb = null;
+            }
         }
         
         this.container.visible = false;

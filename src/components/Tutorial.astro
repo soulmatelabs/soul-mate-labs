@@ -1,0 +1,227 @@
+---
+import Heading from './Heading.astro';
+import Text from './Text.astro';
+
+// Component: Tutorial
+// Purpose: Guide users on interactivity, sound, and navigation before the narrative begins.
+---
+<section 
+  id="tutorial" 
+  class="h-screen w-full snap-start flex flex-col justify-center items-center overflow-hidden relative section-module narrative-locked" 
+  data-index="1" 
+  data-auto-scroll="true"
+  data-auto-scroll-ms="40000"
+>
+  <div class="w-full px-8 text-center z-20 flex flex-col items-center">
+    <Heading 
+      as="h2" 
+      visualRank="vr1" 
+      class="mb-12 staccato-text opacity-0 translate-y-4"
+      data-delay="0"
+      data-delay-absolute="true"
+    >
+      Before We Begin
+    </Heading>
+
+    <!-- Unified Interaction Stage (Messages + CTAs) -->
+    <div id="tutorial-stage" class="relative h-32 w-[80%] md:w-1/2 mx-auto flex flex-col items-center">
+      <!-- Transitional Message Container -->
+      <div id="tutorial-msg" class="h-full flex items-center justify-center text-xl md:text-2xl font-light text-white/70 tracking-wide opacity-0 translate-y-4">
+        <!-- Messages will be injected here -->
+      </div>
+
+      <!-- Dual CTAs (Hidden initially, replaces the text) -->
+      <div id="tutorial-actions" class="absolute top-0 left-0 w-full flex flex-col items-center gap-6 opacity-0 translate-y-8 pointer-events-none transition-all duration-1000">
+        <a href="#friction-state" class="btn-shy group !mt-0 min-w-[280px]" data-nav-next>
+          <span class="relative z-10 flex items-center justify-center space-x-2">
+            <span>Flow into the experience</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="group-hover:translate-y-1 transition-transform">
+              <path d="m6 9 6 6 6-6"/>
+            </svg>
+          </span>
+        </a>
+        <a href="#hub" class="text-white/40 hover:text-white text-sm uppercase tracking-[0.2em] transition-colors py-4 px-10 border border-white/5 hover:border-white/20 rounded-full min-w-[280px]" data-nav-skip>
+          Skip the experience
+        </a>
+      </div>
+    </div>
+
+    <!-- Instant Skip Link (Subtle) -->
+    <a 
+      href="#friction-state" 
+      id="tutorial-skip-instant"
+      class="mt-16 opacity-0 flex flex-col items-center gap-2 text-white/60 hover:text-white/90 transition-all duration-700 pointer-events-none group decoration-transparent"
+      data-nav-skip-intro
+    >
+      <span class="text-[11px] uppercase tracking-[0.4em] font-light">Skip Guide</span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" class="group-hover:translate-y-1 transition-transform">
+        <path d="m7 7 5 5 5-5M7 13l5 5 5-5"/>
+      </svg>
+    </a>
+  </div>
+
+  <!-- Dynamic Arrow Indicator -->
+  <div id="tutorial-arrow" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[100] pointer-events-none opacity-0">
+    <div class="flex flex-col items-center">
+      <!-- Tail -->
+      <div class="h-20 w-[2px] bg-gradient-to-t from-lunar/50 to-transparent"></div>
+      <!-- Head -->
+      <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-lunar animate-pulse">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <polyline points="19 12 12 19 5 12"></polyline>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Background Ambient Glow -->
+  <div class="absolute inset-0 z-0 opacity-20 pointer-events-none">
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-lunar/20 rounded-full blur-[120px]"></div>
+  </div>
+</section>
+
+<script>
+  import gsap from 'gsap';
+
+  let tutorialStarted = false;
+  const messages = [
+    "This page offers a sensory experience.",
+    "It uses animations, sounds, and motion.",
+    "The guided experience lasts about 2 minutes",
+    "...but you can take control at any moment.",
+    "You can always mute the site.",
+    "Use the button on the bottom left corner.",
+    "The page scrolls automatically.",
+    "...but you can use the arrows to move up and down."
+  ];
+
+  const initTutorial = () => {
+    if (tutorialStarted) return;
+    
+    const section = document.getElementById('tutorial');
+    const msgEl = document.getElementById('tutorial-msg');
+    const actions = document.getElementById('tutorial-actions');
+    const arrow = document.getElementById('tutorial-arrow');
+    const skipLink = document.getElementById('tutorial-skip-instant');
+    
+    if (!section || !msgEl || !actions || !arrow || !skipLink) return;
+
+    const tl = gsap.timeline({
+      delay: 1.5,
+      onStart: () => {
+        gsap.to(skipLink, { opacity: 1, pointerEvents: 'auto', duration: 1.5 });
+      },
+      onComplete: () => {
+        actions.classList.remove('opacity-0', 'translate-y-8', 'pointer-events-none');
+        actions.classList.add('opacity-100', 'translate-y-0');
+        gsap.to(skipLink, { opacity: 0, pointerEvents: 'none', duration: 0.5 });
+      }
+    });
+
+    const getTargetCoords = (targetSelector: string) => {
+      const target = document.querySelector(targetSelector);
+      if (!target) return null;
+      const rect = target.getBoundingClientRect();
+      return {
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2
+      };
+    };
+
+    const updateArrow = (selector: string) => {
+      const coords = getTargetCoords(selector);
+      if (!coords) return;
+
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
+      const dx = coords.x - centerX;
+      const dy = coords.y - centerY;
+      
+      const rad = Math.atan2(dy, dx);
+      const angle = rad * (180 / Math.PI) - 90;
+      
+      const totalDist = Math.sqrt(dx * dx + dy * dy);
+      // Arrow height is approx 140px. Stop 40px away.
+      const arrowHalfHeight = 70; 
+      const finalDistance = totalDist - arrowHalfHeight - 40;
+      
+      const offsetX = Math.cos(rad) * finalDistance;
+      const offsetY = Math.sin(rad) * finalDistance;
+
+      gsap.to(arrow, { 
+        rotate: angle, 
+        x: offsetX,
+        y: offsetY,
+        opacity: 1, 
+        duration: 0.7,
+        ease: 'power3.out'
+      });
+    };
+
+    const hideArrow = () => {
+      gsap.to(arrow, { opacity: 0, duration: 0.4 });
+    };
+
+    messages.forEach((text, i) => {
+      tl.to(msgEl, {
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        ease: 'power2.out',
+        onStart: () => {
+          msgEl.textContent = text;
+          if (i === 5) updateArrow('#audio-toggle');
+          if (i === 7) {
+            const isMobile = window.innerWidth < 768;
+            updateArrow(isMobile ? '#mobile-up' : '#desktop-up');
+          }
+        }
+      })
+      .to({}, { duration: 2.8 })
+      .add(() => {
+        if (i === 5 || i === 7) hideArrow();
+      })
+      .to(msgEl, {
+        opacity: 0,
+        y: -20,
+        duration: 0.5,
+        ease: 'power2.in'
+      });
+    });
+
+    tutorialStarted = true;
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting) {
+      initTutorial();
+    }
+  }, { threshold: 0.5 });
+
+  const tutorialSection = document.getElementById('tutorial');
+  if (tutorialSection) observer.observe(tutorialSection);
+
+  document.querySelector('[data-nav-next]')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    document.getElementById('friction-state')?.scrollIntoView({ behavior: 'smooth' });
+  });
+
+  document.querySelector('[data-nav-skip-intro]')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    document.getElementById('friction-state')?.scrollIntoView({ behavior: 'smooth' });
+  });
+
+  document.querySelector('[data-nav-skip]')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    document.getElementById('hub')?.scrollIntoView({ behavior: 'smooth' });
+  });
+</script>
+
+<style>
+  #tutorial {
+    background: radial-gradient(circle at center, rgba(26, 26, 46, 0.8) 0%, rgba(10, 10, 18, 1) 100%);
+  }
+  
+  .btn-shy {
+    @apply border-2 border-lunar/30 px-10 py-5 rounded-full uppercase tracking-[0.2em] text-sm text-lunar/80 transition-all duration-500 hover:border-lunar hover:text-lunar hover:shadow-[0_0_30px_rgba(147,197,253,0.3)];
+  }
+</style>

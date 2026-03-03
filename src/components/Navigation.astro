@@ -4,13 +4,13 @@
 // Mobile: Bottom right FABs (Up/Down)
 ---
 <!-- Desktop Navigation -->
-<div class="hidden md:flex fixed right-8 top-1/2 -translate-y-1/2 z-50 flex-col items-center space-y-4">
+<div class="nav-desktop fixed right-8 top-1/2 -translate-y-1/2 z-50 flex flex-col items-center space-y-4">
   <button aria-label="Scroll Up" class="p-2 text-lunar/50 hover:text-lunar transition-colors" id="desktop-up">
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
   </button>
   
   <nav class="flex flex-col space-y-3">
-    {['command-center', 'friction-state', 'catalyst', 'connection-01', 'connection-02', 'connection-03', 'connection-04', 'axioms', 'hub', 'about-mini', 'footer'].map((id, i) => (
+    {['command-center', 'tutorial', 'friction-state', 'catalyst', 'connection-01', 'connection-02', 'connection-03', 'connection-04', 'axioms', 'hub', 'about-mini', 'footer'].map((id, i) => (
       <a 
         href={`#${id}`} 
         aria-label={`Go to section ${i+1}`}
@@ -26,7 +26,7 @@
 </div>
 
 <!-- Mobile Navigation (Two FABs) -->
-<div class="md:hidden fixed right-4 bottom-4 z-50 flex flex-col space-y-2">
+<div class="nav-mobile fixed right-4 bottom-4 z-50 flex flex-col space-y-2">
   <button aria-label="Scroll Up" class="p-3 bg-surface/80 backdrop-blur border border-white/10 rounded-full text-lunar hover:bg-lunar hover:text-midnight transition-colors shadow-lg" id="mobile-up">
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
   </button>
@@ -35,8 +35,28 @@
   </button>
 </div>
 
+<style>
+  /* Default: Mobile style */
+  .nav-desktop {
+    display: none;
+  }
+  .nav-mobile {
+    display: flex;
+  }
+
+  /* Desktop/Horizontal Tablet: Desktop style */
+  @media (min-width: 1024px), (min-width: 768px) and (orientation: landscape) {
+    .nav-desktop {
+      display: flex;
+    }
+    .nav-mobile {
+      display: none;
+    }
+  }
+</style>
+
 <!-- Audio Toggle (Item 18) -->
-<div class="fixed bottom-6 left-6 z-50">
+<div id="audio-toggle-container" class="fixed bottom-6 left-6 z-50 opacity-0 pointer-events-none transition-opacity duration-700">
   <button id="audio-toggle" aria-label="Toggle Sound" class="p-3 bg-surface/80 backdrop-blur border border-white/10 rounded-full text-lunar shadow-lg active:scale-95 transition-all flex items-center justify-center">
     <div id="audio-icon-on" class="hidden">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
@@ -50,6 +70,7 @@
 <script>
   // Audio Toggle Logic
   const audioToggle = document.getElementById('audio-toggle');
+  const toggleContainer = document.getElementById('audio-toggle-container');
   const iconOn = document.getElementById('audio-icon-on');
   const iconOff = document.getElementById('audio-icon-off');
   
@@ -67,6 +88,11 @@
 
   // Initialize UI
   updateUI();
+
+  // Show mute button when gesture is performed
+  window.addEventListener('showMuteButton', () => {
+    toggleContainer?.classList.remove('opacity-0', 'pointer-events-none');
+  });
 
   // Listen for external state changes (e.g. from Hero buttons)
   window.addEventListener('audioStateChanged', (e: any) => {

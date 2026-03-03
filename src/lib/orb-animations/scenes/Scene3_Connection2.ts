@@ -9,6 +9,7 @@ export class Scene3_Connection2 implements SceneController {
     private container: Container;
     private cluster: OrbCluster;
     private app: Application | null = null;
+    private isExited: boolean = false;
 
     constructor() {
         this.container = new Container();
@@ -17,6 +18,7 @@ export class Scene3_Connection2 implements SceneController {
     }
 
     public enter(app: Application) {
+        this.isExited = false;
         this.app = app;
         this.container.visible = true;
         this.app.stage.addChild(this.container);
@@ -54,19 +56,21 @@ export class Scene3_Connection2 implements SceneController {
         tl.to(orb3.container, { x: centerX + 100, y: targetY, duration: 1 }, "<");
 
         // Shine Sequence
-        tl.call(() => mainOrb.shine(0.5, 10), [], "+=0.2");
-        tl.call(() => orb2.shine(0.5, 10), [], "+=0.2");
-        tl.call(() => orb3.shine(0.5, 10), [], "+=0.2");
+        tl.call(() => { if (!this.isExited) mainOrb.shine(0.5, 10); }, [], "+=0.2");
+        tl.call(() => { if (!this.isExited) orb2.shine(0.5, 10); }, [], "+=0.2");
+        tl.call(() => { if (!this.isExited) orb3.shine(0.5, 10); }, [], "+=0.2");
 
         // Add a shorter "conversation" sequence inspired by Scene 4
-        tl.call(() => orb2.shine(0.4, 12), [], "+=0.4"); // Orb 2 shines back
-        tl.call(() => mainOrb.shine(0.6, 15), [], "+=0.3"); // Main orb responds
-        tl.call(() => orb3.shine(0.4, 12), [], "+=0.4"); // Orb 3 joins in
+        tl.call(() => { if (!this.isExited) orb2.shine(0.4, 12); }, [], "+=0.4"); // Orb 2 shines back
+        tl.call(() => { if (!this.isExited) mainOrb.shine(0.6, 15); }, [], "+=0.3"); // Main orb responds
+        tl.call(() => { if (!this.isExited) orb3.shine(0.4, 12); }, [], "+=0.4"); // Orb 3 joins in
     }
 
     public update(delta: number) {}
 
     public exit() {
+        this.isExited = true;
+        this.cluster.orbs.forEach(orb => gsap.killTweensOf(orb));
         if (this.cluster.orbs.length > 0) {
             globalOrbState.updateStateFromOrb(this.cluster.orbs[0]);
         }

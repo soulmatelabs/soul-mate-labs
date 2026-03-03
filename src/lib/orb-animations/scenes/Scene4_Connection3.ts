@@ -11,6 +11,8 @@ export class Scene4_Connection3 implements SceneController {
     private cluster: OrbCluster;
     private rippleEffect: RippleEffect;
     private app: Application | null = null;
+    private rippleTimeout: ReturnType<typeof setTimeout> | null = null;
+    private isExited: boolean = false;
 
     constructor() {
         this.container = new Container();
@@ -21,6 +23,7 @@ export class Scene4_Connection3 implements SceneController {
     }
 
     public enter(app: Application) {
+        this.isExited = false;
         this.app = app;
         this.container.visible = true;
         this.app.stage.addChild(this.container);
@@ -48,18 +51,21 @@ export class Scene4_Connection3 implements SceneController {
         // 2. Ripple
         const tl = gsap.timeline();
         tl.call(() => {
+            if (this.isExited) return;
             this.rippleEffect.emit(mainOrb.container.x, mainOrb.container.y, 0x60A5FA);
             // Delay second ripple slightly
-            setTimeout(() => {
-                 this.rippleEffect.emit(mainOrb.container.x, mainOrb.container.y, 0x60A5FA);
+            this.rippleTimeout = setTimeout(() => {
+                 if (!this.isExited) {
+                    this.rippleEffect.emit(mainOrb.container.x, mainOrb.container.y, 0x60A5FA);
+                 }
             }, 300);
         }, [], 0);
 
         // 3. Attract 3 new orbs
         const newOrbs = [
-            new Orb(15, 0xF472B6, 2),
-            new Orb(15, 0xC084FC, 2),
-            new Orb(15, 0x818CF8, 2)
+            new Orb(15, 0x10B981, 2), // Emerald
+            new Orb(15, 0xF59E0B, 2), // Amber
+            new Orb(15, 0xF97316, 2)  // Orange
         ];
         
         // Spawn them outside the viewport
@@ -72,6 +78,7 @@ export class Scene4_Connection3 implements SceneController {
         tl.to({}, { duration: 1.8 }); // Wait for ripple
 
         tl.call(() => {
+            if (this.isExited) return;
             // Organize all 5 surrounding orbs into an inverted pentagon for perfect symmetry
             // Mapping targets to minimize crossing based on spawn/start positions:
             // 0: Bottom, 1: Bottom-Left, 2: Top-Left, 3: Top-Right, 4: Bottom-Right
@@ -94,24 +101,30 @@ export class Scene4_Connection3 implements SceneController {
         // 4. Rearrange all 6 into Circle
         tl.to({}, { duration: 1.5 }); // Increased slightly to let pentagon settle
         tl.call(() => {
-            this.cluster.arrangeInCircle(centerX, targetY, 50, 1.5);
+            if (!this.isExited) this.cluster.arrangeInCircle(centerX, targetY, 50, 1.5);
         });
 
         // 5. Beaming Sequence ("Conversation")
         tl.to({}, { duration: 1.5 }); // Wait for circle arrangement to settle
         
-        tl.call(() => this.cluster.orbs[0].shine(0.7, 15), [], "+=0.1");
-        tl.call(() => this.cluster.orbs[2].shine(0.5, 12), [], "+=0.4");
-        tl.call(() => this.cluster.orbs[4].shine(0.5, 12), [], "+=0.3");
-        tl.call(() => this.cluster.orbs[1].shine(0.6, 15), [], "+=0.5");
-        tl.call(() => this.cluster.orbs[3].shine(0.5, 12), [], "+=0.2");
-        tl.call(() => this.cluster.orbs[5].shine(0.5, 12), [], "+=0.4");
-        tl.call(() => this.cluster.orbs[0].shine(0.8, 18), [], "+=0.6");
+        tl.call(() => { if (!this.isExited) this.cluster.orbs[0].shine(0.7, 15); }, [], "+=0.1");
+        tl.call(() => { if (!this.isExited) this.cluster.orbs[2].shine(0.5, 12); }, [], "+=0.4");
+        tl.call(() => { if (!this.isExited) this.cluster.orbs[4].shine(0.5, 12); }, [], "+=0.3");
+        tl.call(() => { if (!this.isExited) this.cluster.orbs[1].shine(0.6, 15); }, [], "+=0.5");
+        tl.call(() => { if (!this.isExited) this.cluster.orbs[3].shine(0.5, 12); }, [], "+=0.2");
+        tl.call(() => { if (!this.isExited) this.cluster.orbs[5].shine(0.5, 12); }, [], "+=0.4");
+        tl.call(() => { if (!this.isExited) this.cluster.orbs[0].shine(0.8, 18); }, [], "+=0.6");
     }
 
     public update(delta: number) {}
 
     public exit() {
+        this.isExited = true;
+        if (this.rippleTimeout) {
+            clearTimeout(this.rippleTimeout);
+            this.rippleTimeout = null;
+        }
+        this.cluster.orbs.forEach(orb => gsap.killTweensOf(orb));
         if(this.cluster.orbs.length > 0) {
              globalOrbState.updateStateFromOrb(this.cluster.orbs[0]);
         }

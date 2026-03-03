@@ -1,5 +1,6 @@
 ---
 import Hero from '../components/Hero.astro';
+import Tutorial from '../components/Tutorial.astro';
 import FrictionSection from '../components/FrictionSection.astro';
 import Catalyst from '../components/Catalyst.astro';
 import Connection01 from '../components/Connection01.astro';
@@ -31,6 +32,7 @@ import '../styles/global.css';
     
     <main class="h-full overflow-y-scroll snap-y snap-mandatory scroll-smooth" id="scroll-container">
       <Hero />
+      <Tutorial />
       <FrictionSection />
       <Catalyst />
       <Connection01 />
@@ -40,7 +42,7 @@ import '../styles/global.css';
       <Axioms />
       <Hub />
       <AboutMini />
-      <section id="footer" class="h-screen w-full snap-start flex flex-col justify-center items-center bg-midnight section-module" data-index="10">
+      <section id="footer" class="h-screen w-full snap-start flex flex-col justify-center items-center bg-midnight section-module" data-index="11">
         <div class="max-w-6xl w-full flex flex-col items-center">
           <Synergize />
           <div class="w-full border-t border-white/5 my-10"></div>
@@ -76,8 +78,8 @@ import '../styles/global.css';
             if (entry.isIntersecting) {
               const index = parseInt(section.dataset.index || '0');
               
-              // Retroactive Pixi Loading: If entering Axioms (7) or Connections, ensuring Pixi is ready
-              if (index <= 7 && index >= 1 && !isNarrativeUnlocked) {
+              // Retroactive Pixi Loading: If entering Axioms (8) or Connections, ensuring Pixi is ready
+              if (index <= 8 && index >= 1 && !isNarrativeUnlocked) {
                  unlockNarrative();
               }
 
@@ -254,7 +256,7 @@ import '../styles/global.css';
           // Retroactive unlock if trying to go into narrative zone
           if (!isNarrativeUnlocked) {
              if ((direction === 'down' && currentIndex === 0) || 
-                 (direction === 'up' && currentIndex === 8)) {
+                 (direction === 'up' && currentIndex === 9)) {
                 unlockNarrative(true);
                 // Give layout a moment to reflow before calculating target
                 setTimeout(() => {
@@ -320,6 +322,9 @@ import '../styles/global.css';
             // Re-trigger UI update in Navigation
             window.dispatchEvent(new CustomEvent('audioStateChanged', { detail: { isMuted: false } }));
           }
+
+          // Show the mute button globally
+          window.dispatchEvent(new CustomEvent('showMuteButton'));
         };
 
         // Path 1: Begin Journey
@@ -333,7 +338,7 @@ import '../styles/global.css';
           
           // Manual scroll after unlock to ensure layout is ready
           setTimeout(() => {
-            const target = document.getElementById('friction-state');
+            const target = document.getElementById('tutorial');
             target?.scrollIntoView({ behavior: 'smooth' });
           }, 10);
         });

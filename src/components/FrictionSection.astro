@@ -5,6 +5,7 @@ import Text from './Text.astro';
 // Import assets for optimization
 import notification1 from '../assets/friction/notification-1.webp';
 import notification2 from '../assets/friction/notification-2.webp';
+import notification3 from '../assets/friction/notification-3.webp';
 import likeSpam from '../assets/friction/like-spam.webp';
 
 // Component: FrictionSection (Phase 2 - Sequential Notifications + Chaos Spam)
@@ -13,7 +14,7 @@ import likeSpam from '../assets/friction/like-spam.webp';
 <section 
   id="friction-state" 
   class="h-screen w-full snap-start flex flex-col justify-center items-center overflow-hidden relative section-module narrative-locked" 
-  data-index="1" 
+  data-index="2" 
   data-auto-scroll="true"
   data-auto-scroll-ms="9500"
   data-like-spam-url={likeSpam.src}
@@ -37,15 +38,15 @@ import likeSpam from '../assets/friction/like-spam.webp';
   <div id="notification-stack" class="h-64 w-full relative z-10 flex justify-center items-center">
      <div id="stack-container" class="relative w-full max-w-[400px] flex justify-center items-center">
        {/* 
-         Sequential Stack of Notifications (Alternating between 1 and 2)
+         Sequential Stack of Notifications (Alternating between 1, 2, and 3)
        */}
-       {[1, 2, 1, 2, 1, 2, 1].map((num, i) => (
+       {[1, 2, 3, 1, 2, 3, 1].map((num, i) => (
          <div 
            class="notification-item absolute opacity-0 scale-95 w-full px-4" 
            style={`z-index: ${10 + i};`}
          >
            <img 
-            src={num === 1 ? notification1.src : notification2.src} 
+            src={num === 1 ? notification1.src : (num === 2 ? notification2.src : notification3.src)} 
             alt="Simulated notification"
             class="w-full h-auto drop-shadow-2xl"
             loading="lazy"

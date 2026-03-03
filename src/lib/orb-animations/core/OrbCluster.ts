@@ -11,6 +11,10 @@ export class OrbCluster {
     }
     
     public addOrb(orb: Orb) {
+        if (!orb || orb.destroyed || !orb.container) {
+            console.warn("[PIXI] Attempted to add a destroyed or invalid orb to cluster.");
+            return;
+        }
         this.orbs.push(orb);
         this.container.addChild(orb.container);
     }
