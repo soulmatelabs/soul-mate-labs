@@ -1,4 +1,5 @@
 ---
+import { Image } from 'astro:assets';
 import Heading from './Heading.astro';
 import Text from './Text.astro';
 
@@ -10,6 +11,12 @@ import likeSpam from '../assets/friction/like-spam.webp';
 
 // Component: FrictionSection (Phase 2 - Sequential Notifications + Chaos Spam)
 // Physics: Full-Screen | Snap-Point
+
+const notifications = [
+  { src: notification1, alt: "creep messaged you" },
+  { src: notification2, alt: "not-ur-friend posted" },
+  { src: notification3, alt: "unknown liked your post" }
+];
 ---
 <section 
   id="friction-state" 
@@ -40,14 +47,14 @@ import likeSpam from '../assets/friction/like-spam.webp';
        {/* 
          Sequential Stack of Notifications (Alternating between 1, 2, and 3)
        */}
-       {[1, 2, 3, 1, 2, 3, 1].map((num, i) => (
+       {[0, 1, 2, 0, 1, 2, 0].map((idx, i) => (
          <div 
            class="notification-item absolute opacity-0 scale-95 w-full px-4" 
            style={`z-index: ${10 + i};`}
          >
-           <img 
-            src={num === 1 ? notification1.src : (num === 2 ? notification2.src : notification3.src)} 
-            alt="Simulated notification"
+           <Image 
+            src={notifications[idx].src} 
+            alt={notifications[idx].alt}
             class="w-full h-auto drop-shadow-2xl"
             loading="lazy"
            />

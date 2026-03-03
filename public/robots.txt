@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://soulmatelabs.github.io/soul-mate-labs/sitemap-index.xml

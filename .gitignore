@@ -22,6 +22,7 @@ commit_message.txt
 
 # Temporal files
 GEMINI.md
+/.gemini
 signature_style.md
 feedback.md
 solved_feedback.md
