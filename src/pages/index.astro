@@ -30,7 +30,7 @@ import '../styles/global.css';
 	<body class="bg-midnight text-white overflow-hidden h-screen">
     <Navbar />
     
-    <main class="h-full overflow-y-scroll snap-y snap-mandatory scroll-smooth" id="scroll-container">
+    <main class="h-full overflow-y-scroll snap-y snap-mandatory" id="scroll-container">
       <Hero />
       <Tutorial />
       <FrictionSection />
@@ -70,6 +70,25 @@ import '../styles/global.css';
         let interactionTimeout: ReturnType<typeof setTimeout> | null = null;
         let activeIndex = 0;
         let isNarrativeUnlocked = false;
+
+        // Path-based Visibility (Item 31)
+        const narrativeSectionIds = ['tutorial', 'friction-state', 'catalyst', 'connection-01', 'connection-02', 'connection-03', 'connection-04', 'axioms'];
+        
+        const updateNavDotsVisibility = (showNarrative: boolean) => {
+          dots.forEach(dot => {
+            const targetId = dot.getAttribute('data-target') || '';
+            if (narrativeSectionIds.includes(targetId)) {
+              if (showNarrative) {
+                (dot as HTMLElement).style.display = 'block';
+              } else {
+                (dot as HTMLElement).style.display = 'none';
+              }
+            }
+          });
+        };
+
+        // Initially hide narrative dots
+        updateNavDotsVisibility(false);
 
         // Observer for animations and active state
         const observer = new IntersectionObserver((entries) => {
@@ -145,6 +164,9 @@ import '../styles/global.css';
           const locked = document.querySelectorAll('.narrative-locked');
           locked.forEach(el => el.classList.remove('narrative-locked'));
           
+          // Show relevant nav dots
+          updateNavDotsVisibility(true);
+
           // Step 1: Pixi initialization is now gated by 'friction-ready'
           if (withPixi) {
             window.addEventListener('friction-ready', () => {
@@ -223,13 +245,27 @@ import '../styles/global.css';
 
         function scrollToNext(currentIndex: number) {
           if (currentIndex < sections.length - 1) {
-            sections[currentIndex + 1].scrollIntoView({ behavior: 'smooth' });
+            // Find the next VISIBLE section
+            let nextIndex = currentIndex + 1;
+            while (nextIndex < sections.length && (sections[nextIndex] as HTMLElement).offsetParent === null) {
+              nextIndex++;
+            }
+            if (nextIndex < sections.length) {
+              sections[nextIndex].scrollIntoView({ behavior: 'smooth' });
+            }
           }
         }
         
         function scrollToPrev(currentIndex: number) {
            if (currentIndex > 0) {
-            sections[currentIndex - 1].scrollIntoView({ behavior: 'smooth' });
+            // Find the previous VISIBLE section
+            let prevIndex = currentIndex - 1;
+            while (prevIndex >= 0 && (sections[prevIndex] as HTMLElement).offsetParent === null) {
+              prevIndex--;
+            }
+            if (prevIndex >= 0) {
+              sections[prevIndex].scrollIntoView({ behavior: 'smooth' });
+            }
           }
         }
 
@@ -280,7 +316,8 @@ import '../styles/global.css';
         // Nav Dot Unlocking
         dots.forEach(dot => {
           dot.addEventListener('click', () => {
-            if (!isNarrativeUnlocked) {
+            const targetId = dot.getAttribute('data-target') || '';
+            if (narrativeSectionIds.includes(targetId) && !isNarrativeUnlocked) {
               unlockNarrative(true);
             }
           });
@@ -365,7 +402,8 @@ import '../styles/global.css';
         const shyBtns = document.querySelectorAll('.shy-cta');
         shyBtns.forEach(btn => {
           btn.addEventListener('click', (e) => {
-            const app = (e.currentTarget as HTMLElement).dataset.app;
+            const rawApp = (e.currentTarget as HTMLElement).dataset.app || '';
+            const app = rawApp.toLowerCase();
             const targetUrl = (e.currentTarget as HTMLElement).getAttribute('data-url') || `/${app}`;
             
             // 1. Pause Auto-Scroll

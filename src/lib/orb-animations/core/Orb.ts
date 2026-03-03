@@ -1,4 +1,4 @@
-import { Graphics, Container, Color, BlurFilter } from 'pixi.js';
+import { Graphics, Container, BlurFilter } from 'pixi.js';
 import { GlowFilter } from 'pixi-filters';
 import gsap from 'gsap';
 

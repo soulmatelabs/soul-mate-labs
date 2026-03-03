@@ -4,7 +4,6 @@ import { Orb } from '../core/Orb';
 import { OrbCluster } from '../core/OrbCluster';
 import { globalOrbState } from '../core/GlobalOrbState';
 import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 export class Scene1_Catalyst implements SceneController {
     private container: Container;
@@ -16,7 +15,6 @@ export class Scene1_Catalyst implements SceneController {
     private combinationTimeline: gsap.core.Timeline | null = null;
     private scrollTimeline: gsap.core.Timeline | null = null;
     private isOrbiting: boolean = false;
-    private combinationStarted: boolean = false;
     private isExited: boolean = false;
 
     constructor() {
@@ -54,7 +52,6 @@ export class Scene1_Catalyst implements SceneController {
         const rotationSpeed = 6; // 6 seconds per rotation
         
         this.cluster.clear();
-        this.combinationStarted = false;
         
         // Define cardinal angles (West, North, East, South)
         const baseAngles = [Math.PI, -Math.PI / 2, 0, Math.PI / 2];
@@ -176,7 +173,6 @@ export class Scene1_Catalyst implements SceneController {
         this.combinationTimeline = gsap.timeline({
             delay: stayDuration - 0.2, // 1.5
             onStart: () => { 
-                this.combinationStarted = true;
                 // Kill scroll scrub to prevent jumping back to start position when auto-scroll begins
                 if (this.scrollTimeline) {
                     if (this.scrollTimeline.scrollTrigger) {
@@ -212,7 +208,6 @@ export class Scene1_Catalyst implements SceneController {
                 scrub: 0.5,
                 onEnterBack: () => {
                     // Allow scrub to take control when coming back
-                    this.combinationStarted = false;
                 }
             }
         });
@@ -230,7 +225,7 @@ export class Scene1_Catalyst implements SceneController {
         }
     }
 
-    public update(delta: number) {
+    public update(_delta: number) {
     }
 
     public exit() {

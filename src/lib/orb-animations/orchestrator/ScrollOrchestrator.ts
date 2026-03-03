@@ -13,6 +13,7 @@ export class ScrollOrchestrator {
     private sceneInstances: Map<string, SceneController> = new Map();
     private currentScene: SceneController | null = null;
     private tickerTimeout: ReturnType<typeof setTimeout> | null = null;
+    private prefersReducedMotion: boolean = false;
 
     // Mapping section IDs to their dynamic import paths
     private sceneModules: Record<string, () => Promise<any>> = {
@@ -25,6 +26,9 @@ export class ScrollOrchestrator {
 
     constructor(app: Application) {
         this.app = app;
+        
+        // Check for reduced motion preference
+        this.prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         
         // Ensure engine is paused initially
         this.app.ticker.stop();
@@ -42,11 +46,24 @@ export class ScrollOrchestrator {
             console.log("[PIXI] ScrollOrchestrator JIT initialized");
         }, 200);
         
-        // Add update loop
+        // Add update loop - Only run updates if motion is NOT reduced
         app.ticker.add((ticker) => {
-             if (this.currentScene) {
+             if (this.currentScene && !this.prefersReducedMotion) {
                  this.currentScene.update(ticker.deltaTime);
              }
+        });
+
+        // Listen for changes in motion preference
+        window.matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change', (e) => {
+            this.prefersReducedMotion = e.matches;
+            // When motion is reduced, we still want to render one frame to show the static state, 
+            // but we stop the continuous ticker to save power and stop all motion.
+            if (this.prefersReducedMotion) {
+                this.app.ticker.stop();
+            } else {
+                const st = ScrollTrigger.getById('orb-zone');
+                if (st && st.isActive) this.app.ticker.start();
+            }
         });
     }
 
@@ -71,6 +88,8 @@ export class ScrollOrchestrator {
         if (this.tickerTimeout) clearTimeout(this.tickerTimeout);
         
         console.log("[PIXI] Entering Active Zone - Resuming Engine");
+        // We always start the ticker to ensure at least one render occurs.
+        // If prefersReducedMotion is true, the update() loop above will be skipped.
         this.app.ticker.start();
         
         const canvas = this.app.canvas as HTMLCanvasElement;

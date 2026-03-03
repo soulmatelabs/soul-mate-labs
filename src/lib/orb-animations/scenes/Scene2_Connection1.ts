@@ -152,7 +152,7 @@ export class Scene2_Connection1 implements SceneController {
         }
     }
 
-    public update(delta: number) {
+    public update(_delta: number) {
     }
 
     public exit() {

@@ -1,6 +1,5 @@
 ---
 import Heading from './Heading.astro';
-import Text from './Text.astro';
 
 // Component: Tutorial
 // Purpose: Guide users on interactivity, sound, and navigation before the narrative begins.
@@ -83,6 +82,7 @@ import Text from './Text.astro';
   import gsap from 'gsap';
 
   let tutorialStarted = false;
+  let tutorialTimeline: gsap.core.Timeline | null = null;
   const messages = [
     "This page offers a sensory experience.",
     "It uses animations, sounds, and motion.",
@@ -105,7 +105,7 @@ import Text from './Text.astro';
     
     if (!section || !msgEl || !actions || !arrow || !skipLink) return;
 
-    const tl = gsap.timeline({
+    tutorialTimeline = gsap.timeline({
       delay: 1.5,
       onStart: () => {
         gsap.to(skipLink, { opacity: 1, pointerEvents: 'auto', duration: 1.5 });
@@ -162,7 +162,7 @@ import Text from './Text.astro';
     };
 
     messages.forEach((text, i) => {
-      tl.to(msgEl, {
+      tutorialTimeline!.to(msgEl, {
         opacity: 1,
         y: 0,
         duration: 0.8,
@@ -194,6 +194,23 @@ import Text from './Text.astro';
   const observer = new IntersectionObserver((entries) => {
     if (entries[0].isIntersecting) {
       initTutorial();
+    } else {
+      // Access arrow through DOM if needed, or ensure this closure captures it
+      const arrow = document.getElementById('tutorial-arrow');
+      if (arrow) {
+        gsap.to(arrow, { opacity: 0, duration: 0.4 });
+      }
+      // Kill the timeline if we scroll away to prevent arrows from reappearing
+      if (tutorialTimeline) {
+        tutorialTimeline.kill();
+        tutorialTimeline = null;
+        // Optionally reset tutorialStarted if you want it to restart when coming back
+        // For now, let's keep it true so it only plays once, but killed.
+        // Wait, if we kill it midway, it won't finish. 
+        // If the user scrolls back, we might want it to resume or restart.
+        // Let's reset tutorialStarted so it restarts if they scroll back before finishing.
+        tutorialStarted = false;
+      }
     }
   }, { threshold: 0.5 });
 
@@ -219,9 +236,5 @@ import Text from './Text.astro';
 <style>
   #tutorial {
     background: radial-gradient(circle at center, rgba(26, 26, 46, 0.8) 0%, rgba(10, 10, 18, 1) 100%);
-  }
-  
-  .btn-shy {
-    @apply border-2 border-lunar/30 px-10 py-5 rounded-full uppercase tracking-[0.2em] text-sm text-lunar/80 transition-all duration-500 hover:border-lunar hover:text-lunar hover:shadow-[0_0_30px_rgba(147,197,253,0.3)];
   }
 </style>

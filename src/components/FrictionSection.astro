@@ -13,9 +13,9 @@ import likeSpam from '../assets/friction/like-spam.webp';
 // Physics: Full-Screen | Snap-Point
 
 const notifications = [
-  { src: notification1, alt: "creep messaged you" },
-  { src: notification2, alt: "not-ur-friend posted" },
-  { src: notification3, alt: "unknown liked your post" }
+  { src: notification1, alt: "Social media notification showing a message from an unknown user" },
+  { src: notification2, alt: "Social media notification showing a post from someone you barely know" },
+  { src: notification3, alt: "Social media notification showing a like from a stranger" }
 ];
 ---
 <section 
@@ -32,13 +32,7 @@ const notifications = [
   </div>
 
   <!-- Base Chaos Blur -->
-  <div id="friction-collage" class="absolute inset-0 z-0 opacity-20 pointer-events-none select-none">
-     <img 
-      src="/assets/chaos-blur.svg" 
-      alt="" 
-      loading="lazy"
-      class="w-full h-full object-cover"
-    />
+  <div id="friction-collage" class="absolute inset-0 z-0 opacity-20 pointer-events-none select-none chaos-blur-bg">
   </div>
 
   <!-- Notification Stack Area (Aligned with Orb Height) -->
@@ -112,7 +106,6 @@ const notifications = [
 
   const init = () => {
     if (frictionInitialized) return;
-    console.log("[Friction] Initializing script...");
     
     const container = document.getElementById('scroll-container');
     const section = document.querySelector('#friction-state') as HTMLElement;
@@ -120,6 +113,7 @@ const notifications = [
     const spamContainer = document.getElementById('chaos-spam-container');
     
     if (!section) return;
+    console.log("[Friction] Initializing script...");
     const likeSpamUrl = section.dataset.likeSpamUrl || '';
 
     const soundPaths = [
@@ -144,7 +138,7 @@ const notifications = [
     };
 
     const spawnLikeSpam = () => {
-      if (!spamContainer) return;
+      if (!spamContainer || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
       const img = document.createElement('img');
       img.src = likeSpamUrl;
       img.className = 'absolute opacity-0 scale-50';
@@ -252,7 +246,9 @@ const notifications = [
     if (section) observer.observe(section);
     frictionInitialized = true;
     console.log("[Friction] Initialized successfully.");
-    dispatchReady();
+    
+    // Slight delay to ensure DOM readiness before signaling Pixi engine
+    setTimeout(dispatchReady, 50);
   };
 
   function dispatchReady() {

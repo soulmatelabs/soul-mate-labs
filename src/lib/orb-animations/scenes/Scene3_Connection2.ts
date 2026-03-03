@@ -66,7 +66,7 @@ export class Scene3_Connection2 implements SceneController {
         tl.call(() => { if (!this.isExited) orb3.shine(0.4, 12); }, [], "+=0.4"); // Orb 3 joins in
     }
 
-    public update(delta: number) {}
+    public update(_delta: number) {}
 
     public exit() {
         this.isExited = true;

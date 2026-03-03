@@ -2,7 +2,6 @@ import { Container, Application } from 'pixi.js';
 import type { SceneController } from '../core/SceneController';
 import { Orb } from '../core/Orb';
 import { OrbCluster } from '../core/OrbCluster';
-import { globalOrbState } from '../core/GlobalOrbState';
 import gsap from 'gsap';
 
 export class Scene5_Connection4 implements SceneController {
@@ -89,7 +88,7 @@ export class Scene5_Connection4 implements SceneController {
         }, [], "<");
     }
 
-    public update(delta: number) {}
+    public update(_delta: number) {}
 
     public exit() {
         this.isExited = true;

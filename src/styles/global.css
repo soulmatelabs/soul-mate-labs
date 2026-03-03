@@ -3,25 +3,47 @@
 @tailwind utilities;
 
 html {
-  scroll-behavior: smooth;
+  /* scroll-behavior: smooth; removed to avoid conflict with scroll-snap on #scroll-container. Smooth scrolling is handled via JS. */
 }
 
 body {
   @apply bg-midnight text-white;
 }
 
-.shy-cta, .btn-shy {
-  @apply mt-16 px-8 py-4 border-2 border-lunar/50 rounded-full text-lunar/60 text-sm tracking-widest uppercase transition-all duration-500 relative overflow-hidden;
+@layer components {
+  .btn-base {
+    @apply mt-16 px-10 py-4 font-bold rounded-full transition-all duration-300 font-sans text-center;
+  }
+
+  .btn-primary {
+    @apply btn-base bg-accent text-midnight hover:scale-105 hover:shadow-[0_0_20px_theme(colors.accent.soft)];
+  }
+
+  .btn-outline {
+    @apply btn-base border border-accent text-accent hover:bg-accent/10;
+  }
+
+  .btn-shy {
+    @apply btn-base !font-normal border-2 border-accent/30 text-accent/60 text-sm tracking-widest uppercase hover:border-accent hover:text-accent hover:shadow-[0_0_30px_theme(colors.accent.soft)] relative overflow-hidden;
+  }
+
+  .btn-shy::after {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-r from-transparent via-accent/10 to-transparent -translate-x-full;
+    animation: shy-shine 5s infinite;
+  }
+
+  .card-base {
+    @apply bg-surface border border-white/5 rounded-2xl transition-all duration-300;
+  }
+
+  .card-interactive {
+    @apply card-base hover:border-accent;
+  }
 }
 
-.shy-cta:hover, .btn-shy:hover {
-  @apply border-lunar text-lunar shadow-[0_0_20px_rgba(147,197,253,0.4)];
-}
-
-.shy-cta::after, .btn-shy::after {
-  content: '';
-  @apply absolute inset-0 bg-gradient-to-r from-transparent via-lunar/10 to-transparent -translate-x-full;
-  animation: shy-shine 5s infinite;
+.shy-cta {
+  @apply btn-shy;
 }
 
 @keyframes shy-shine {
@@ -85,6 +107,26 @@ body {
 
 .animate-reveal-right {
   animation: reveal-right 1.5s ease-out forwards;
+}
+
+.chaos-blur-bg {
+  background-color: #0a0a0a;
+  background-image: 
+    radial-gradient(circle at 25% 33%, rgba(59, 130, 246, 0.4) 0%, transparent 40%),
+    radial-gradient(circle at 75% 66%, rgba(99, 102, 241, 0.3) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(30, 27, 75, 0.6) 0%, transparent 40%);
+  filter: blur(60px); /* Simulate the SVG Gaussian blur */
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in-up {
+    animation: fadeIn 0.8s ease-out forwards !important;
+  }
 }
 
 /* Gated Asset Pipeline: Hide narrative sections until intent is confirmed */

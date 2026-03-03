@@ -1,6 +1,5 @@
 import { Container } from 'pixi.js';
 import { Orb } from './Orb';
-import gsap from 'gsap';
 
 export class OrbCluster {
     public container: Container;

@@ -7,6 +7,17 @@ export default {
         midnight: '#0A0A0A',
         lunar: '#93C5FD',
         surface: '#171717',
+        // Semantic aliases for easier editing
+        accent: {
+          DEFAULT: '#93C5FD', // lunar
+          soft: 'rgba(147, 197, 253, 0.3)',
+        },
+        content: {
+          title: '#FFFFFF',
+          heading: '#E5E7EB', // gray-200
+          body: '#D1D5DB',    // gray-300
+          muted: '#9CA3AF',   // gray-400
+        }
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],

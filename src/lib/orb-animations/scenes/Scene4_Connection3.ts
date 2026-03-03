@@ -69,9 +69,9 @@ export class Scene4_Connection3 implements SceneController {
         ];
         
         // Spawn them outside the viewport
-        newOrbs[0].setPosition(centerX - centerX, targetY - centerY); // centerX - 300, targetY - 200
-        newOrbs[1].setPosition(centerX, targetY + 1.5 * centerY); // targetY + 300
-        newOrbs[2].setPosition(centerX + centerX, targetY - centerY); // centerX + 300, targetY - 200
+        newOrbs[0].setPosition(centerX - centerX, targetY - centerY); 
+        newOrbs[1].setPosition(centerX, targetY + 1.5 * centerY); 
+        newOrbs[2].setPosition(centerX + centerX, targetY - centerY); 
         
         newOrbs.forEach(orb => this.cluster.addOrb(orb));
 
@@ -94,7 +94,8 @@ export class Scene4_Connection3 implements SceneController {
                 const angle = (Math.PI * 2 * i) / 5 + Math.PI / 2; // Start at Bottom
                 const tx = centerX + Math.cos(angle) * 100;
                 const ty = targetY + Math.sin(angle) * 100;
-                orb.attractTo({x: tx, y: ty}, 2.0);
+                // Use moveTo with power3.out to ensure they "stop on time" without overshoot collision on desktop
+                orb.moveTo(tx, ty, 2.0, 'power3.out');
             });
         });
         
@@ -116,7 +117,7 @@ export class Scene4_Connection3 implements SceneController {
         tl.call(() => { if (!this.isExited) this.cluster.orbs[0].shine(0.8, 18); }, [], "+=0.6");
     }
 
-    public update(delta: number) {}
+    public update(_delta: number) {}
 
     public exit() {
         this.isExited = true;
