@@ -3,19 +3,21 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Heading from '../components/Heading.astro';
 import Text from '../components/Text.astro';
 
-// Component: Careers (The Forge)
-// Layout: 12-Column Grid | 8/4 Split
+const pageTitle = "Careers at SoulMate Labs: Build with Us";
+const pageDescription = "We're not hiring employees; we're looking for partners. Join a quest to reshape human connection and build the future with meaningful equity.";
 ---
 
-<BaseLayout title="Careers">
-  <div class="max-w-6xl mx-auto w-full">
+<BaseLayout title={pageTitle} description={pageDescription}>
+  <main class="mx-auto max-w-6xl px-6 py-24 sm:py-32 space-y-20">
     <!-- SEO Intent -->
-    <Heading as="h1" visualRank="vr3" class="mb-4">Join SoulMate Labs</Heading>
-    
-    <!-- The Hook -->
-    <Heading as="h2" visualRank="vr1" class="mb-12 md:mb-20 max-w-4xl">
-      We don't hire. We partner.
-    </Heading>
+    <header>
+      <Heading as="h1" visualRank="vr3" class="mb-4">Join SoulMate Labs</Heading>
+      
+      <!-- The Hook -->
+      <Heading as="h2" visualRank="vr1" class="mb-12 md:mb-20 max-w-4xl">
+        We don't hire. We partner.
+      </Heading>
+    </header>
 
     <div class="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-24">
       <!-- Block 1: The Reality (Col 1-8) -->
@@ -52,5 +54,5 @@ import Text from '../components/Text.astro';
         </div>
       </div>
     </div>
-  </div>
+  </main>
 </BaseLayout>

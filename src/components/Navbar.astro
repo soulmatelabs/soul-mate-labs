@@ -1,6 +1,5 @@
 ---
-import { Image } from 'astro:assets';
-import logo from '../assets/SoulMate-Labs-logo-medium.png';
+import logo from '../assets/SoulMate-Labs-logo-medium.webp';
 
 ---
 
@@ -9,15 +8,16 @@ import logo from '../assets/SoulMate-Labs-logo-medium.png';
   <div class="flex-1 pointer-events-auto">
     <!-- Logo -->
     <a href="/" class="p-1 hover:scale-105 transition-transform inline-block" aria-label="Go to Home">
-      <Image 
-        src={logo} 
-        alt="SoulMate Labs Logo" 
-        width={40} 
-        height={40} 
+      <img
+        src={logo.src}
+        alt="SoulMate Labs Logo"
+        width="60"
+        height="60"
         loading="eager"
+        decoding="sync"
         fetchpriority="high"
         class="w-10 h-10"
-      />
+      />    
     </a>
   </div>
 

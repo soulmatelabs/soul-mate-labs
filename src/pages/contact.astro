@@ -1,15 +1,17 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Heading from '../components/Heading.astro';
+
+const pageTitle = "Contact SoulMate Labs";
+const pageDescription = "Connect with the SoulMate Labs team. Join our community on Discord or Reddit, or reach out for professional inquiries on LinkedIn.";
 ---
 
-<BaseLayout title="Contact">
-  <div class="max-w-6xl mx-auto w-full">
-    <!-- SEO Intent -->
-    <Heading as="h1" visualRank="vr3" class="mb-4 text-center">Connect with SoulMate Labs</Heading>
-    
-    <!-- The Hook -->
-    <Heading as="h2" visualRank="vr1" class="mb-20 text-center">Build with Us.</Heading>
+<BaseLayout title={pageTitle} description={pageDescription}>
+  <main class="mx-auto max-w-6xl px-6 py-24 sm:py-32 space-y-20">
+    <header>
+      <Heading as="h1" visualRank="vr3" class="mb-4 text-center">Connect with SoulMate Labs</Heading>
+      <Heading as="h2" visualRank="vr1" class="mb-20 text-center">Build with Us.</Heading>
+    </header>
 
     <!-- Grid Layout -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-24">
@@ -73,4 +75,5 @@ import Heading from '../components/Heading.astro';
         </div>
       </div>
     </div>
+  </main>
 </BaseLayout>
