@@ -10,12 +10,18 @@ interface Props {
   title: string;
   description?: string;
   image?: string;
+  showNavbar?: boolean;
+  showFooter?: boolean;
+  bodyClass?: string;
 }
 
 const { 
   title, 
   description = 'SoulMate Labs: Mindful social technology for authentic human connection.',
-  image = '/assets/SoulMate-Labs-logo-large.png'
+  image = '/assets/SoulMate-Labs-logo-large.png',
+  showNavbar = true,
+  showFooter = true,
+  bodyClass = "flex flex-col min-h-screen"
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
@@ -48,11 +54,11 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <meta property="twitter:description" content={description} />
     <meta property="twitter:image" content={new URL(image, Astro.url)} />
 	</head>
-	<body class="bg-midnight text-white flex flex-col min-h-screen">
-    <Navbar />
+	<body class:list={["bg-midnight text-white", bodyClass]}>
+    {showNavbar && <Navbar />}
     
     <slot />
     
-    <Footer />
+    {showFooter && <Footer />}
 	</body>
 </html>

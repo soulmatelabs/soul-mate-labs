@@ -2,9 +2,10 @@
 import { Image } from 'astro:assets';
 import Heading from './Heading.astro';
 import Text from './Text.astro';
-import up4itLogo from '../assets/Up4it-logo-medium.webp';
-import couplairLogo from '../assets/Couplair-logo-medium.webp';
-import soulsightLogo from '../assets/SoulSight-Logo.svg';
+import up4itLogo from '../assets/hub/Up4it-logo-medium.webp';
+import couplairLogo from '../assets/hub/Couplair-logo-medium.webp';
+import soulsightLogo from '../assets/hub/SoulSight-Logo.svg';
+import soulmateLogo from '../assets/hub/SoulMate-Logo.svg';
 
 // Component: Hub (Module 09)
 // Physics: Min-Height Screen | Snap-Point
@@ -35,8 +36,8 @@ import soulsightLogo from '../assets/SoulSight-Logo.svg';
       </a>
       
       <a id="hub-card-soulmate" href="https://soulmatelabs.github.io/soul-mate-site/" target="_blank" class="hub-card h-full p-4 md:p-8 card-interactive flex flex-col items-center group">
-        <div class="w-16 h-16 bg-accent/20 rounded-full mb-6 group-hover:bg-accent/40 transition-colors flex items-center justify-center">
-          <div class="w-10 h-0.5 bg-accent"></div>
+        <div class="w-16 h-16 bg-white rounded-full mb-6 group-hover:bg-white/90 transition-colors flex items-center justify-center p-3">
+          <Image src={soulmateLogo} alt="Soul Mate Logo" width={64} height={64} loading="lazy" class="max-w-full max-h-full object-contain" />
         </div>
         <Heading as="h3" visualRank="vr3" class="mb-3">Soul Mate</Heading>
         <Text visualRank="vr4" class="mb-6 flex-grow">Forge relationships that transcend the superficial and resonate at depth.</Text>

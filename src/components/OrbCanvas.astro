@@ -1,10 +1,27 @@
 <canvas id="orb-canvas"></canvas>
 
 <script>
+  let pixiModule: any = null;
+  let loadingPixi: Promise<void> | null = null;
+
+  const loadPixi = async () => {
+    if (pixiModule) return pixiModule;
+    if (loadingPixi) return loadingPixi;
+
+    console.log("[OrbCanvas] Intent detected. Preloading Pixi engine...");
+    loadingPixi = import('../lib/orb-animations').then(m => {
+      pixiModule = m;
+      console.log("[OrbCanvas] Pixi engine preloaded.");
+    });
+    return loadingPixi;
+  };
+
+  // Listen for 'warm-pixi' to pre-fetch library chunks
+  window.addEventListener('warm-pixi', loadPixi);
+
   // Listen for the 'init-pixi' event from the main flow controller
   window.addEventListener('init-pixi', async () => {
-      // Dynamic import to keep PixiJS out of the initial payload
-      const { initOrbAnimations } = await import('../lib/orb-animations');
+      const { initOrbAnimations } = await loadPixi();
       initOrbAnimations('orb-canvas');
   });
 </script>

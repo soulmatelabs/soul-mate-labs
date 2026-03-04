@@ -79,11 +79,43 @@ const notifications = [
 </section>
 
 <script>
-  import gsap from 'gsap';
+  // Just-In-Time (JIT) GSAP Loading
+  let gsapInstance: any = null;
+  let loadingGSAP: Promise<void> | null = null;
+
+  const loadGSAP = async () => {
+    if (gsapInstance) return gsapInstance;
+    if (loadingGSAP) return loadingGSAP;
+
+    console.log("[Friction] Intent detected. Preloading GSAP...");
+    loadingGSAP = import('gsap').then(m => {
+      gsapInstance = m.default;
+      console.log("[Friction] GSAP loaded.");
+    });
+    return loadingGSAP;
+  };
+
+  const soundPaths = [
+    '/assets/audio/notification.mp3',
+    '/assets/audio/notification-2.mp3',
+    '/assets/audio/notification-3.mp3'
+  ];
+
+  let audioPool: HTMLAudioElement[] = [];
+
+  const preloadAudio = () => {
+    if (audioPool.length > 0) return;
+    console.log("[Friction] Preloading audio pool...");
+    soundPaths.forEach(path => {
+      const audio = new Audio(path);
+      audio.load(); // Start buffering
+      audioPool.push(audio);
+    });
+  };
 
   let frictionInitialized = false;
   let activeAudio: HTMLAudioElement[] = [];
-  let mainTimeline: gsap.core.Timeline | null = null;
+  let mainTimeline: any = null;
   let spamInterval: ReturnType<typeof setInterval> | null = null;
 
   const stopAllAudioAndAnimations = () => {
@@ -104,130 +136,141 @@ const notifications = [
     }
   };
 
+  const spawnLikeSpam = async () => {
+    const gsap = await loadGSAP();
+    const spamContainer = document.getElementById('chaos-spam-container');
+    const section = document.querySelector('#friction-state') as HTMLElement;
+    const likeSpamUrl = section?.dataset.likeSpamUrl || '';
+
+    if (!spamContainer || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const img = document.createElement('img');
+    img.src = likeSpamUrl;
+    img.className = 'absolute opacity-0 scale-50';
+    
+    const x = Math.random() * 100;
+    const y = Math.random() * 100;
+    const rotation = (Math.random() - 0.5) * 60;
+    
+    img.style.left = `${x}%`;
+    img.style.top = `${y}%`;
+    img.style.transform = `rotate(${rotation}deg)`;
+    img.style.width = `${40 + Math.random() * 80}px`;
+    
+    spamContainer.appendChild(img);
+    
+    gsap.to(img, {
+      opacity: 0.5,
+      scale: 1,
+      duration: 0.25,
+      ease: 'back.out(2)',
+      onComplete: () => {
+        gsap.to(img, {
+          opacity: 0,
+          scale: 0.7,
+          duration: 0.8,
+          delay: 0.4,
+          onComplete: () => img.remove()
+        });
+      }
+    });
+    
+    playNotificationSound(Math.floor(Math.random() * 3));
+  };
+
+  const playNotificationSound = (index: number) => {
+    const isMuted = localStorage.getItem('isMuted') === 'true';
+    if (isMuted) return;
+
+    // Use preloaded audio from pool to eliminate latency
+    const baseAudio = audioPool[index % audioPool.length];
+    if (!baseAudio) {
+      // Fallback if pool isn't ready
+      const audio = new Audio(soundPaths[index % soundPaths.length]);
+      audio.volume = 0.08;
+      activeAudio.push(audio);
+      audio.play().catch(() => {});
+      return;
+    }
+
+    const sound = baseAudio.cloneNode() as HTMLAudioElement;
+    sound.volume = 0.08;
+    activeAudio.push(sound);
+    
+    sound.play().catch(e => console.warn("[Friction] Audio play failed:", e));
+    
+    sound.onended = () => {
+      activeAudio = activeAudio.filter(a => a !== sound);
+    };
+  };
+
+  const triggerSequence = async () => {
+    console.log("[Friction] Triggering animation sequence...");
+    const gsap = await loadGSAP();
+    const items = document.querySelectorAll('.notification-item');
+    
+    stopAllAudioAndAnimations();
+    mainTimeline = gsap.timeline();
+    const shiftAmount = 80;
+    
+    items.forEach((item, i) => {
+      const baseDelay = 1.0;
+      let cumulativeDelay = baseDelay;
+      for(let n = 0; n < i; n++) {
+         cumulativeDelay += Math.max(0.3, 1.0 - (n * 0.15));
+      }
+      
+      if (i > 0) {
+         for (let j = 0; j < i; j++) {
+            mainTimeline!.to(items[j], {
+               y: `-=${shiftAmount}`,
+               alpha: `-=0.12`,
+               duration: 0.4,
+               ease: 'power2.out'
+            }, cumulativeDelay);
+         }
+      }
+
+      mainTimeline!.fromTo(item, 
+        { opacity: 0, scale: 0.8, y: 20 },
+        {
+          opacity: 1,
+          scale: 1,
+          y: 0,
+          duration: 0.5,
+          ease: 'back.out(1.2)',
+          onStart: () => {
+             playNotificationSound(i);
+             if (window.navigator.vibrate) window.navigator.vibrate(50);
+             
+             if (i === 3 && !spamInterval) {
+                spamInterval = setInterval(spawnLikeSpam, 400);
+             }
+             if (i === 6 && spamInterval) {
+                clearInterval(spamInterval);
+                spamInterval = setInterval(spawnLikeSpam, 150);
+             }
+          }
+        }, cumulativeDelay);
+    });
+
+    mainTimeline.add(() => {
+      if (spamInterval) {
+        clearInterval(spamInterval);
+        spamInterval = null;
+      }
+      // Sequential Relay: Friction done -> Pre-warm Pixi library
+      window.dispatchEvent(new CustomEvent('warm-pixi'));
+    }, 5.5);
+  };
+
   const init = () => {
     if (frictionInitialized) return;
     
     const container = document.getElementById('scroll-container');
     const section = document.querySelector('#friction-state') as HTMLElement;
-    const items = document.querySelectorAll('.notification-item');
-    const spamContainer = document.getElementById('chaos-spam-container');
     
     if (!section) return;
-    console.log("[Friction] Initializing script...");
-    const likeSpamUrl = section.dataset.likeSpamUrl || '';
-
-    const soundPaths = [
-      '/assets/audio/notification.mp3',
-      '/assets/audio/notification-2.mp3',
-      '/assets/audio/notification-3.mp3'
-    ];
-
-    const playNotificationSound = (index: number) => {
-      const isMuted = localStorage.getItem('isMuted') === 'true';
-      if (isMuted) return;
-
-      const audio = new Audio(soundPaths[index % soundPaths.length]);
-      audio.volume = 0.08;
-      activeAudio.push(audio);
-      
-      audio.play().catch(e => console.warn("[Friction] Audio play failed:", e));
-      
-      audio.onended = () => {
-        activeAudio = activeAudio.filter(a => a !== audio);
-      };
-    };
-
-    const spawnLikeSpam = () => {
-      if (!spamContainer || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-      const img = document.createElement('img');
-      img.src = likeSpamUrl;
-      img.className = 'absolute opacity-0 scale-50';
-      
-      const x = Math.random() * 100;
-      const y = Math.random() * 100;
-      const rotation = (Math.random() - 0.5) * 60;
-      
-      img.style.left = `${x}%`;
-      img.style.top = `${y}%`;
-      img.style.transform = `rotate(${rotation}deg)`;
-      img.style.width = `${40 + Math.random() * 80}px`;
-      
-      spamContainer.appendChild(img);
-      
-      gsap.to(img, {
-        opacity: 0.5,
-        scale: 1,
-        duration: 0.25,
-        ease: 'back.out(2)',
-        onComplete: () => {
-          gsap.to(img, {
-            opacity: 0,
-            scale: 0.7,
-            duration: 0.8,
-            delay: 0.4,
-            onComplete: () => img.remove()
-          });
-        }
-      });
-      
-      playNotificationSound(Math.floor(Math.random() * 3));
-    };
-
-    const triggerSequence = () => {
-      console.log("[Friction] Triggering animation sequence...");
-      stopAllAudioAndAnimations();
-      mainTimeline = gsap.timeline();
-      const shiftAmount = 80;
-      
-      items.forEach((item, i) => {
-        const baseDelay = 1.0;
-        let cumulativeDelay = baseDelay;
-        for(let n = 0; n < i; n++) {
-           cumulativeDelay += Math.max(0.3, 1.0 - (n * 0.15));
-        }
-        
-        if (i > 0) {
-           for (let j = 0; j < i; j++) {
-              mainTimeline!.to(items[j], {
-                 y: `-=${shiftAmount}`,
-                 alpha: `-=0.12`,
-                 duration: 0.4,
-                 ease: 'power2.out'
-              }, cumulativeDelay);
-           }
-        }
-
-        mainTimeline!.fromTo(item, 
-          { opacity: 0, scale: 0.8, y: 20 },
-          {
-            opacity: 1,
-            scale: 1,
-            y: 0,
-            duration: 0.5,
-            ease: 'back.out(1.2)',
-            onStart: () => {
-               playNotificationSound(i);
-               if (window.navigator.vibrate) window.navigator.vibrate(50);
-               
-               if (i === 3 && !spamInterval) {
-                  spamInterval = setInterval(spawnLikeSpam, 400);
-               }
-               if (i === 6 && spamInterval) {
-                  clearInterval(spamInterval);
-                  spamInterval = setInterval(spawnLikeSpam, 150);
-               }
-            }
-          }, cumulativeDelay);
-      });
-
-      // Natural Fade-out: Stop the chaotic spam sounds just before the last text appears (at 6s)
-      mainTimeline.add(() => {
-        if (spamInterval) {
-          clearInterval(spamInterval);
-          spamInterval = null;
-        }
-      }, 5.5);
-    };
+    console.log("[Friction] Initializing script hooks...");
 
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
@@ -245,19 +288,15 @@ const notifications = [
 
     if (section) observer.observe(section);
     frictionInitialized = true;
-    console.log("[Friction] Initialized successfully.");
-    
-    // Slight delay to ensure DOM readiness before signaling Pixi engine
-    setTimeout(dispatchReady, 50);
   };
 
-  function dispatchReady() {
-    window.dispatchEvent(new CustomEvent('friction-ready'));
-  }
+  // Preload on intent
+  window.addEventListener('warm-friction', () => {
+    loadGSAP();
+  });
 
   window.addEventListener('init-friction', init);
   
-  // Support manual/fallback init
   if ((window as any).INIT_FRICTION_REQUESTED) {
      init();
   }

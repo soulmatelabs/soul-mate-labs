@@ -1,4 +1,5 @@
 ---
+import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/Hero.astro';
 import Tutorial from '../components/Tutorial.astro';
 import FrictionSection from '../components/FrictionSection.astro';
@@ -13,23 +14,18 @@ import AboutMini from '../components/AboutMini.astro';
 import Footer from '../components/Footer.astro';
 import Synergize from '../components/Synergize.astro';
 import Navigation from '../components/Navigation.astro';
-import Navbar from '../components/Navbar.astro';
 import OrbCanvas from '../components/OrbCanvas.astro';
-import '../styles/global.css';
+
+const title = "SoulMate Labs | Engineering Meaningful Connections";
+const description = "Discover mindful social technology designed for authentic human connection. SoulMate Labs creates tools to help you find what you're missing.";
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/png" href="/favicon.png" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>SoulMate Labs | Engineering Meaningful Connections</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Sans:wght@400;500&display=swap" rel="stylesheet">
-	</head>
-	<body class="bg-midnight text-white overflow-hidden h-screen">
-    <Navbar />
-    
+<BaseLayout 
+  title={title} 
+  description={description}
+  showFooter={false}
+  bodyClass="overflow-hidden h-screen"
+>
     <main class="h-full overflow-y-scroll snap-y snap-mandatory" id="scroll-container">
       <Hero />
       <Tutorial />
@@ -55,7 +51,7 @@ import '../styles/global.css';
     <OrbCanvas />
 
     <script>
-      // Flow State Controller
+      // Flow State Controller - Sequential Relay Edition
       const initFlow = () => {
         const container = document.getElementById('scroll-container');
         if (!container) return;
@@ -97,12 +93,13 @@ import '../styles/global.css';
             if (entry.isIntersecting) {
               const index = parseInt(section.dataset.index || '0');
               
-              // Retroactive Pixi Loading: If entering Axioms (8) or Connections, ensuring Pixi is ready
-              if (index <= 8 && index >= 1 && !isNarrativeUnlocked) {
-                 unlockNarrative();
+              // Catalyst Trigger: Initialize Pixi engine here (Relay Phase 3)
+              if (section.id === 'catalyst' && isNarrativeUnlocked) {
+                console.log("[Flow] Catalyst active. Initializing Pixi engine...");
+                window.dispatchEvent(new CustomEvent('init-pixi'));
               }
 
-              // Clear any pending timer from previous section immediately upon entering a new one
+              // Clear any pending timer from previous section immediately upon entering a another one
               if (autoScrollTimer) clearTimeout(autoScrollTimer);
 
               // Manual Overwrite Check: If user scrolls UP, disable auto-scroll (Direct Flow)
@@ -132,20 +129,25 @@ import '../styles/global.css';
                    parseInt(section.dataset.autoScrollMs) : 
                    (animationDuration + 5000);
 
-                 console.log(`[Flow] Setting auto-scroll timer for section ${index} (${section.id}). Wait: ${autoScrollWait}ms`);
+                 // Proximity Relay: Pre-warm next section 2 seconds before scroll happens
+                 const warmWait = Math.max(0, autoScrollWait - 2000);
+                 setTimeout(() => {
+                    if (!isUserInteracting && !isDirectFlow) {
+                       const nextSection = sections[index + 1] as HTMLElement;
+                       if (nextSection) {
+                          console.log(`[Flow] Proximity pre-warm for ${nextSection.id}`);
+                          if (nextSection.id === 'friction-state') window.dispatchEvent(new CustomEvent('warm-friction'));
+                          if (nextSection.id === 'catalyst') window.dispatchEvent(new CustomEvent('warm-pixi'));
+                       }
+                    }
+                 }, warmWait);
 
                  autoScrollTimer = setTimeout(() => {
-                   console.log(`[Flow] Auto-scroll timer fired for section ${index}. isUserInteracting: ${isUserInteracting}`);
                    // Only scroll if user hasn't touched the page recently
                    if (!isUserInteracting) {
-                     console.log(`[Flow] Triggering scroll to next from ${index}`);
                      scrollToNext(index);
-                   } else {
-                     console.log(`[Flow] Auto-scroll skipped due to user interaction`);
                    }
                  }, autoScrollWait);
-              } else {
-                 console.log(`[Flow] Auto-scroll not enabled for section ${index} (${section.id}). isDirectFlow: ${isDirectFlow}`);
               }
             }
           });
@@ -157,7 +159,7 @@ import '../styles/global.css';
         sections.forEach(section => observer.observe(section));
 
         // Unlock Narrative Pipeline
-        function unlockNarrative(withPixi = true) {
+        function unlockNarrative() {
           if (isNarrativeUnlocked) return;
           
           console.log("[Flow] Unlocking Narrative Sections...");
@@ -167,15 +169,7 @@ import '../styles/global.css';
           // Show relevant nav dots
           updateNavDotsVisibility(true);
 
-          // Step 1: Pixi initialization is now gated by 'friction-ready'
-          if (withPixi) {
-            window.addEventListener('friction-ready', () => {
-              console.log("[Flow] Friction stable. Initializing Pixi engine...");
-              window.dispatchEvent(new CustomEvent('init-pixi'));
-            }, { once: true });
-          }
-
-          // Step 2: Initialize Friction visuals/logic
+          // Phase 1 of relay: Trigger Friction logic (JIT assets)
           (window as any).INIT_FRICTION_REQUESTED = true;
           window.dispatchEvent(new CustomEvent('init-friction'));
           
@@ -289,16 +283,16 @@ import '../styles/global.css';
             }
           });
 
-          // Retroactive unlock if trying to go into narrative zone
+          // Rigid Navigation: If narrative is locked, skip directly between Hero and Hub
           if (!isNarrativeUnlocked) {
-             if ((direction === 'down' && currentIndex === 0) || 
-                 (direction === 'up' && currentIndex === 9)) {
-                unlockNarrative(true);
-                // Give layout a moment to reflow before calculating target
-                setTimeout(() => {
-                  if (direction === 'up') scrollToPrev(currentIndex);
-                  else scrollToNext(currentIndex);
-                }, 10);
+             if (direction === 'down' && currentIndex === 0) {
+                const target = document.getElementById('hub');
+                target?.scrollIntoView({ behavior: 'smooth' });
+                return;
+             }
+             if (direction === 'up' && currentIndex === 9) {
+                const target = document.getElementById('command-center');
+                target?.scrollIntoView({ behavior: 'smooth' });
                 return;
              }
           }
@@ -313,13 +307,23 @@ import '../styles/global.css';
         upBtns.forEach(btn => btn?.addEventListener('click', () => handleNavClick('up')));
         downBtns.forEach(btn => btn?.addEventListener('click', () => handleNavClick('down')));
 
-        // Nav Dot Unlocking
+        // Nav Dot Navigation
         dots.forEach(dot => {
-          dot.addEventListener('click', () => {
+          dot.addEventListener('click', (e) => {
             const targetId = dot.getAttribute('data-target') || '';
+            
+            // Rigid Logic: If target is narrative and locked, prevent navigation
             if (narrativeSectionIds.includes(targetId) && !isNarrativeUnlocked) {
-              unlockNarrative(true);
+              e.preventDefault();
+              e.stopPropagation();
+              console.log("[Flow] Narrative locked. Entry restricted to primary CTA.");
+              return;
             }
+
+            // Manual Pre-warm based on destination
+            if (targetId === 'tutorial') window.dispatchEvent(new CustomEvent('warm-gsap'));
+            if (targetId === 'friction-state') window.dispatchEvent(new CustomEvent('warm-friction'));
+            if (targetId === 'catalyst') window.dispatchEvent(new CustomEvent('warm-pixi'));
           });
         });
 
@@ -367,7 +371,7 @@ import '../styles/global.css';
         // Path 1: Begin Journey
         narrativeBtn?.addEventListener('click', (e) => {
           e.preventDefault();
-          unlockNarrative(true);
+          unlockNarrative();
           isDirectFlow = false;
           isUserInteracting = false; // Reset to allow auto-scroll to start on FrictionSection
           if (interactionTimeout) clearTimeout(interactionTimeout);
@@ -380,10 +384,10 @@ import '../styles/global.css';
           }, 10);
         });
 
-        // Prewarming Path 1 (Friction Assets)
+        // Prewarming Path 1 (Intent Phase 0)
         ['mouseenter', 'touchstart'].forEach(evt => {
           narrativeBtn?.addEventListener(evt, () => {
-             window.dispatchEvent(new CustomEvent('warm-friction'));
+             window.dispatchEvent(new CustomEvent('warm-gsap'));
           }, { once: true });
         });
 
@@ -472,5 +476,4 @@ import '../styles/global.css';
         100% { opacity: 1; transform: translateY(0); }
       }
     </style>
-	</body>
-</html>
+</BaseLayout>

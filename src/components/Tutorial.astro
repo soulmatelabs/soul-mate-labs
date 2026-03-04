@@ -39,7 +39,7 @@ import Heading from './Heading.astro';
             </svg>
           </span>
         </a>
-        <a href="#hub" class="text-white/40 hover:text-white text-sm uppercase tracking-[0.2em] transition-colors py-4 px-10 border border-white/5 hover:border-white/20 rounded-full min-w-[280px]" data-nav-skip>
+        <a href="#hub" class="text-white/60 hover:text-white text-sm uppercase tracking-[0.2em] transition-colors py-4 px-10 border border-white/5 hover:border-white/20 rounded-full min-w-[280px]" data-nav-skip>
           Skip the experience
         </a>
       </div>
@@ -79,10 +79,24 @@ import Heading from './Heading.astro';
 </section>
 
 <script>
-  import gsap from 'gsap';
+  // JIT GSAP Loading for Tutorial
+  let gsapInstance: any = null;
+  let loadingGSAP: Promise<void> | null = null;
+
+  const loadGSAP = async () => {
+    if (gsapInstance) return gsapInstance;
+    if (loadingGSAP) return loadingGSAP;
+
+    console.log("[Tutorial] Intent detected. Preloading GSAP...");
+    loadingGSAP = import('gsap').then(m => {
+      gsapInstance = m.default;
+      console.log("[Tutorial] GSAP loaded.");
+    });
+    return loadingGSAP;
+  };
 
   let tutorialStarted = false;
-  let tutorialTimeline: gsap.core.Timeline | null = null;
+  let tutorialTimeline: any = null;
   const messages = [
     "This page offers a sensory experience.",
     "It uses animations, sounds, and motion.",
@@ -94,9 +108,10 @@ import Heading from './Heading.astro';
     "...but you can use the arrows to move up and down."
   ];
 
-  const initTutorial = () => {
+  const initTutorial = async () => {
     if (tutorialStarted) return;
     
+    const gsap = await loadGSAP();
     const section = document.getElementById('tutorial');
     const msgEl = document.getElementById('tutorial-msg');
     const actions = document.getElementById('tutorial-actions');
@@ -114,6 +129,9 @@ import Heading from './Heading.astro';
         actions.classList.remove('opacity-0', 'translate-y-8', 'pointer-events-none');
         actions.classList.add('opacity-100', 'translate-y-0');
         gsap.to(skipLink, { opacity: 0, pointerEvents: 'none', duration: 0.5 });
+        
+        // Final sequence end - broadcast warm-friction for next section
+        window.dispatchEvent(new CustomEvent('warm-friction'));
       }
     });
 
@@ -140,7 +158,6 @@ import Heading from './Heading.astro';
       const angle = rad * (180 / Math.PI) - 90;
       
       const totalDist = Math.sqrt(dx * dx + dy * dy);
-      // Arrow height is approx 140px. Stop 40px away.
       const arrowHalfHeight = 70; 
       const finalDistance = totalDist - arrowHalfHeight - 40;
       
@@ -191,24 +208,17 @@ import Heading from './Heading.astro';
     tutorialStarted = true;
   };
 
-  const observer = new IntersectionObserver((entries) => {
+  const observer = new IntersectionObserver(async (entries) => {
     if (entries[0].isIntersecting) {
       initTutorial();
     } else {
-      // Access arrow through DOM if needed, or ensure this closure captures it
       const arrow = document.getElementById('tutorial-arrow');
-      if (arrow) {
-        gsap.to(arrow, { opacity: 0, duration: 0.4 });
+      if (arrow && gsapInstance) {
+        gsapInstance.to(arrow, { opacity: 0, duration: 0.4 });
       }
-      // Kill the timeline if we scroll away to prevent arrows from reappearing
       if (tutorialTimeline) {
         tutorialTimeline.kill();
         tutorialTimeline = null;
-        // Optionally reset tutorialStarted if you want it to restart when coming back
-        // For now, let's keep it true so it only plays once, but killed.
-        // Wait, if we kill it midway, it won't finish. 
-        // If the user scrolls back, we might want it to resume or restart.
-        // Let's reset tutorialStarted so it restarts if they scroll back before finishing.
         tutorialStarted = false;
       }
     }
@@ -217,11 +227,23 @@ import Heading from './Heading.astro';
   const tutorialSection = document.getElementById('tutorial');
   if (tutorialSection) observer.observe(tutorialSection);
 
+  const broadcastWarmFriction = () => {
+    window.dispatchEvent(new CustomEvent('warm-friction'));
+  };
+
+  // Listen for warm-gsap to pre-fetch library
+  window.addEventListener('warm-gsap', loadGSAP);
+
+  // Intent to move on (Skip or Next) triggers Friction pre-warm
+  document.querySelector('[data-nav-next]')?.addEventListener('mouseenter', broadcastWarmFriction);
+  document.querySelector('[data-nav-next]')?.addEventListener('touchstart', broadcastWarmFriction);
   document.querySelector('[data-nav-next]')?.addEventListener('click', (e) => {
     e.preventDefault();
     document.getElementById('friction-state')?.scrollIntoView({ behavior: 'smooth' });
   });
 
+  document.querySelector('[data-nav-skip-intro]')?.addEventListener('mouseenter', broadcastWarmFriction);
+  document.querySelector('[data-nav-skip-intro]')?.addEventListener('touchstart', broadcastWarmFriction);
   document.querySelector('[data-nav-skip-intro]')?.addEventListener('click', (e) => {
     e.preventDefault();
     document.getElementById('friction-state')?.scrollIntoView({ behavior: 'smooth' });

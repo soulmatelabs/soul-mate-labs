@@ -5,7 +5,7 @@ import { globalOrbState } from '../core/GlobalOrbState';
 import gsap from 'gsap';
 
 // Path to the SVG asset
-import handsOutline from '../../../assets/hands-outline.svg';
+import handsOutline from '../../../assets/connection-01/hands-outline.svg';
 
 export class Scene2_Connection1 implements SceneController {
     private container: Container;

@@ -10,13 +10,28 @@
   </button>
   
   <nav class="flex flex-col space-y-3">
-    {['command-center', 'tutorial', 'friction-state', 'catalyst', 'connection-01', 'connection-02', 'connection-03', 'connection-04', 'axioms', 'hub', 'about-mini', 'footer'].map((id, i) => (
+    {[
+      { id: 'command-center', label: 'Go to Top / Introduction' },
+      { id: 'tutorial', label: 'Go to Interface Guide' },
+      { id: 'friction-state', label: 'Go to The Problem (Noise)' },
+      { id: 'catalyst', label: 'Go to Our Solution' },
+      { id: 'connection-01', label: 'Explore Connection Level 1' },
+      { id: 'connection-02', label: 'Explore Connection Level 2' },
+      { id: 'connection-03', label: 'Explore Connection Level 3' },
+      { id: 'connection-04', label: 'Explore Connection Level 4' },
+      { id: 'axioms', label: 'Go to Invitation' },
+      { id: 'hub', label: 'Explore Our Applications' },
+      { id: 'about-mini', label: 'Go to Our Team Philosophy' },
+      { id: 'footer', label: 'Footer / Social Links' }
+    ].map((item) => (
       <a 
-        href={`#${id}`} 
-        aria-label={`Go to section ${i+1}`}
-        class="w-2 h-2 rounded-full bg-white/20 hover:bg-lunar hover:scale-125 transition-all nav-dot"
-        data-target={id}
-      ></a>
+        href={`#${item.id}`} 
+        aria-label={item.label}
+        class="w-2 h-2 rounded-full bg-white/20 hover:bg-lunar hover:scale-125 transition-all nav-dot relative"
+        data-target={item.id}
+      >
+        <span class="absolute inset-[-20px] cursor-pointer"></span>
+      </a>
     ))}
   </nav>
   
@@ -108,28 +123,5 @@
     updateUI();
     // Dispatch custom event for other components to listen to
     window.dispatchEvent(new CustomEvent('audioStateChanged', { detail: { isMuted } }));
-  });
-
-  // Mobile Share Logic
-  document.getElementById('mobile-share')?.addEventListener('click', async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: 'The Connection Movement | SoulMate Labs',
-          text: 'Discover mindful social technology for authentic human connection.',
-          url: window.location.href,
-        });
-      } catch (err) {
-        // Fail silently if user cancels
-      }
-    } else {
-      // Fallback for browsers that don't support Web Share API
-      try {
-        await navigator.clipboard.writeText(window.location.href);
-        alert('Link copied to clipboard');
-      } catch (err) {
-        console.error('Copy failed:', err);
-      }
-    }
   });
 </script>
