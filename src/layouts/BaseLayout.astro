@@ -18,7 +18,7 @@ interface Props {
 const { 
   title, 
   description = 'SoulMate Labs: Mindful social technology for authentic human connection.',
-  image = '/assets/SoulMate-Labs-logo-large.webp',
+  image = 'assets/SoulMate-Labs-logo-large.webp',
   showNavbar = true,
   showFooter = true,
   bodyClass = "flex flex-col min-h-screen"
@@ -30,7 +30,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
-		<link rel="icon" type="image/png" href="/favicon.png" />
+		<link rel="icon" type="image/png" href="favicon.png" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
     <link rel="canonical" href={canonicalURL} />
