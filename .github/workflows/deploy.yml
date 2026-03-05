@@ -33,15 +33,6 @@ jobs:
         # with:
           # node-version: 20 # Optional: The action defaults to a recent LTS version of Node.js
           # package-manager: npm@latest # Optional: The action automatically detects the package manager
-
-      - name: Setup GitHub Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload production artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          # Astro's default build output directory
-          path: ./dist
       
       - name: Deploy to GitHub Pages
         id: deployment
