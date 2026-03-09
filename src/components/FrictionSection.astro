@@ -114,6 +114,7 @@ const notifications = [
   };
 
   let frictionInitialized = false;
+  let sequenceCompleted = false;
   let activeAudio: HTMLAudioElement[] = [];
   let mainTimeline: any = null;
   let spamInterval: ReturnType<typeof setInterval> | null = null;
@@ -125,7 +126,7 @@ const notifications = [
     });
     activeAudio = [];
     
-    if (mainTimeline) {
+    if (mainTimeline && !sequenceCompleted) {
       mainTimeline.kill();
       mainTimeline = null;
     }
@@ -204,6 +205,8 @@ const notifications = [
   };
 
   const triggerSequence = async () => {
+    if (sequenceCompleted) return;
+    
     console.log("[Friction] Triggering animation sequence...");
     const gsap = await loadGSAP();
     const items = document.querySelectorAll('.notification-item');
@@ -260,6 +263,7 @@ const notifications = [
       }
       // Sequential Relay: Friction done -> Pre-warm Pixi library
       window.dispatchEvent(new CustomEvent('warm-pixi'));
+      sequenceCompleted = true;
     }, 5.5);
   };
 
@@ -275,8 +279,10 @@ const notifications = [
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
-          console.log("[Friction] Section visible.");
-          triggerSequence();
+          if (!sequenceCompleted) {
+            console.log("[Friction] Section visible.");
+            triggerSequence();
+          }
         } else {
           stopAllAudioAndAnimations();
         }

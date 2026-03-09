@@ -86,6 +86,27 @@ const description = "Discover mindful social technology designed for authentic h
         // Initially hide narrative dots
         updateNavDotsVisibility(false);
 
+        // Helper to trigger JIT engines based on target
+        const triggerJIT = (targetId: string) => {
+          if (!isNarrativeUnlocked) return;
+          
+          console.log(`[Flow] Manual JIT Trigger for: ${targetId}`);
+          
+          // Pre-warm levels
+          if (targetId === 'tutorial') {
+             window.dispatchEvent(new CustomEvent('warm-gsap'));
+          }
+          if (targetId === 'friction-state' || targetId === 'catalyst' || targetId.startsWith('connection-')) {
+             window.dispatchEvent(new CustomEvent('warm-gsap'));
+             window.dispatchEvent(new CustomEvent('warm-friction'));
+             window.dispatchEvent(new CustomEvent('init-friction'));
+          }
+          if (targetId === 'catalyst' || targetId.startsWith('connection-')) {
+             window.dispatchEvent(new CustomEvent('warm-pixi'));
+             window.dispatchEvent(new CustomEvent('init-pixi'));
+          }
+        };
+
         // Observer for animations and active state
         const observer = new IntersectionObserver((entries) => {
           entries.forEach(entry => {
@@ -297,6 +318,15 @@ const description = "Discover mindful social technology designed for authentic h
              }
           }
 
+          // Manual JIT Trigger for the target section
+          const nextIdx = direction === 'down' ? currentIndex + 1 : currentIndex - 1;
+          if (nextIdx >= 0 && nextIdx < sections.length) {
+            const nextSection = sections[nextIdx] as HTMLElement;
+            if (nextSection && nextSection.offsetParent !== null) {
+              triggerJIT(nextSection.id);
+            }
+          }
+
           if (direction === 'up') scrollToPrev(currentIndex);
           else scrollToNext(currentIndex);
 
@@ -321,9 +351,7 @@ const description = "Discover mindful social technology designed for authentic h
             }
 
             // Manual Pre-warm based on destination
-            if (targetId === 'tutorial') window.dispatchEvent(new CustomEvent('warm-gsap'));
-            if (targetId === 'friction-state') window.dispatchEvent(new CustomEvent('warm-friction'));
-            if (targetId === 'catalyst') window.dispatchEvent(new CustomEvent('warm-pixi'));
+            triggerJIT(targetId);
           });
         });
 
@@ -378,10 +406,24 @@ const description = "Discover mindful social technology designed for authentic h
           unlockAudio();
           
           // Manual scroll after unlock to ensure layout is ready
-          setTimeout(() => {
-            const target = document.getElementById('tutorial');
-            target?.scrollIntoView({ behavior: 'smooth' });
-          }, 10);
+          // We use nested rAF and temporary snap-disable to prevent the browser from resisting the scroll
+          if (container instanceof HTMLElement) {
+            const originalSnap = container.style.scrollSnapType;
+            container.style.scrollSnapType = 'none';
+            
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => {
+                const target = document.getElementById('tutorial');
+                if (target) {
+                  target.scrollIntoView({ behavior: 'smooth' });
+                  // Restore snap after the smooth scroll has likely started/finished
+                  setTimeout(() => {
+                    container.style.scrollSnapType = originalSnap;
+                  }, 1000);
+                }
+              });
+            });
+          }
         });
 
         // Prewarming Path 1 (Intent Phase 0)
