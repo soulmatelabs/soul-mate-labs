@@ -12,7 +12,7 @@ body {
 
 @layer components {
   .btn-base {
-    @apply mt-16 px-10 py-4 font-bold rounded-full transition-all duration-300 font-sans text-center;
+    @apply px-10 py-4 font-bold rounded-full transition-all duration-300 font-sans text-center;
   }
 
   .btn-primary {
